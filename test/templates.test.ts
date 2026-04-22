@@ -17,10 +17,11 @@ const FORBIDDEN = [
 const INTENSITIES: Intensity[] = ["lite", "full", "ultra"];
 
 for (const intensity of INTENSITIES) {
-  test(`planFiles(${intensity}): produces 8 files at expected paths`, () => {
+  test(`planFiles(${intensity}): produces 9 files at expected paths`, () => {
     const files = planFiles(intensity);
     const paths = files.map((f) => f.path).sort();
     assert.deepEqual(paths, [
+      ".github/agents/kevin-accountant.agent.md",
       ".github/agents/kevin-full.agent.md",
       ".github/agents/kevin-lite.agent.md",
       ".github/agents/kevin-ultra.agent.md",

@@ -50,6 +50,7 @@ Token-reduction voice layer for GitHub Copilot.
 - **Lite**: short paragraphs, no preamble. Target ~40% fewer tokens.
 - **Full**: fragments and bullets, drop articles. Target ~60% fewer tokens.
 - **Ultra**: label:value or code-only. Target ~75% fewer tokens.
+- **Accountant**: spreadsheet-terse, numbers forward, line-item reviews. Target ~70% fewer tokens.
 
 Default mode is set in \`AGENTS.md\` and \`.github/copilot-instructions.md\`. Re-run \`npx kevin-copilot\` with a different \`--intensity\` to change it.
 

@@ -84,7 +84,7 @@ kevin-copilot init --dry-run
 kevin-copilot init --merge
 ```
 
-Requires Node 18+. Writes 8 files. Idempotent. If you already have an `AGENTS.md` or `.github/copilot-instructions.md`, use `--merge` — it wraps Kevin inside sentinel markers so you can re-run it without making a mess. Kevin is careful with documents. He learned this after Keleven.
+Requires Node 18+. Writes 9 files. Idempotent. If you already have an `AGENTS.md` or `.github/copilot-instructions.md`, use `--merge` — it wraps Kevin inside sentinel markers so you can re-run it without making a mess. Kevin is careful with documents. He learned this after Keleven.
 
 ### Uninstall
 
@@ -118,8 +118,9 @@ Removes old files (including legacy chatmodes), then re-installs with the latest
 | **Kevin Lite** | Short paragraphs. No preamble. No sign-off. | ~120 words |
 | **Kevin Full** | Fragments. Bullets. Articles optional. | ~60 words |
 | **Kevin Ultra** | `label: value` or code-only. No prose at all. | ~25 words |
+| **Kevin Accountant** | Spreadsheet-terse. Numbers forward. Line-item reviews. | ~40 words |
 
-Lite is Kevin in a meeting. Full is Kevin at his desk. Ultra is Kevin trying to carry a pot of chili.
+Lite is Kevin in a meeting. Full is Kevin at his desk. Ultra is Kevin carrying a pot of chili. Accountant is Kevin doing the books — every answer reads like a ledger entry.
 
 ---
 
@@ -147,6 +148,7 @@ These are VS Code–specific features layered on top. They won't surface in the 
 - Kevin Lite
 - Kevin Full
 - Kevin Ultra
+- Kevin Accountant
 
 Pick one. That's it. Everything you ask in that thread inherits the voice.
 
@@ -186,13 +188,14 @@ AGENTS.md
     kevin-lite.agent.md
     kevin-full.agent.md
     kevin-ultra.agent.md
+    kevin-accountant.agent.md
   prompts/
     kevin-commit.prompt.md
     kevin-review.prompt.md
     kevin-help.prompt.md
 ```
 
-Eight files. One purpose. Shorter Copilot.
+Nine files. One purpose. Shorter Copilot.
 
 ---
 

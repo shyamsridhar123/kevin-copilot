@@ -130,7 +130,7 @@ Flags (uninstall):
 Writes (init / update):
   AGENTS.md
   .github/copilot-instructions.md
-  .github/agents/kevin-{lite,full,ultra}.agent.md
+  .github/agents/kevin-{lite,full,ultra,accountant}.agent.md
   .github/prompts/kevin-commit.prompt.md
   .github/prompts/kevin-review.prompt.md
   .github/prompts/kevin-help.prompt.md

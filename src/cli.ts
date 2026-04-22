@@ -4,7 +4,7 @@ import { install } from "./install";
 import { uninstall } from "./uninstall";
 
 // Keep in sync with package.json.
-const VERSION = "0.3.0";
+const VERSION = "0.3.1";
 
 async function main(argv: string[]): Promise<number> {
   let parsed;
