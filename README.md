@@ -228,7 +228,7 @@ Change modes anytime — re-run `init` with a different `--intensity` plus `--fo
 
 Kevin stands on the shoulders of shorter people:
 
-- **[Caveman Claude](https://github.com/rafaelrinaldi/caveman-claude)** — Claude Code system prompt that speaks in caveman English. Caveman inspired Kevin. Caveman smart. Kevin different tribe, same fire.
+- **[Caveman Claude](https://github.com/JuliusBrussee/caveman)** — Claude Code system prompt that speaks in caveman English. Caveman inspired Kevin. Caveman smart. Kevin different tribe, same fire.
 - **[AGENTS.md](https://agents.md)** — the cross-agent instructions standard. Kevin writes one.
 - **[GitHub Copilot custom instructions](https://docs.github.com/en/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot)** — the surface Kevin steers.
 
