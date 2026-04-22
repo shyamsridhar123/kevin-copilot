@@ -282,3 +282,25 @@ test("uninstall: cleans up empty directories", async () => {
     await rmDir(dir);
   }
 });
+
+test("uninstall: removes legacy .chatmode.md files", async () => {
+  const dir = await mkTmp();
+  try {
+    // Simulate an old install that wrote .chatmode.md files.
+    const chatmodesDir = path.join(dir, ".github", "chatmodes");
+    await fs.mkdir(chatmodesDir, { recursive: true });
+    await fs.writeFile(path.join(chatmodesDir, "kevin-lite.chatmode.md"), "old chatmode", "utf8");
+    await fs.writeFile(path.join(chatmodesDir, "kevin-full.chatmode.md"), "old chatmode", "utf8");
+    await fs.writeFile(path.join(chatmodesDir, "kevin-ultra.chatmode.md"), "old chatmode", "utf8");
+
+    const r = await uninstall({ targetDir: dir, dryRun: false, log: () => {} });
+    assert.ok(r.removed.includes(".github/chatmodes/kevin-lite.chatmode.md"));
+    assert.ok(r.removed.includes(".github/chatmodes/kevin-full.chatmode.md"));
+    assert.ok(r.removed.includes(".github/chatmodes/kevin-ultra.chatmode.md"));
+
+    const chatmodesExists = await fs.stat(chatmodesDir).catch(() => null);
+    assert.equal(chatmodesExists, null, ".github/chatmodes should be removed");
+  } finally {
+    await rmDir(dir);
+  }
+});

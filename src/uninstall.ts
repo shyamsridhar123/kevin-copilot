@@ -70,9 +70,17 @@ function removeSentinelBlock(content: string): string | null {
   return cleaned.length === 0 ? "" : cleaned + "\n";
 }
 
+/** Legacy paths from older versions that should also be cleaned up. */
+const LEGACY_PATHS = [
+  ".github/chatmodes/kevin-lite.chatmode.md",
+  ".github/chatmodes/kevin-full.chatmode.md",
+  ".github/chatmodes/kevin-ultra.chatmode.md",
+];
+
 /** Directories that kevin creates and should clean up if empty. */
 const CLEANUP_DIRS = [
   ".github/agents",
+  ".github/chatmodes",
   ".github/prompts",
   ".github",
 ];
@@ -146,6 +154,20 @@ export async function uninstall(params: UninstallParams): Promise<UninstallResul
     // File exists but doesn't match kevin content and has no sentinel block.
     log(`skipped: ${relPath} (modified or not installed by kevin)`);
     result.skipped.push(relPath);
+  }
+
+  // Remove legacy files from older versions (e.g. .chatmode.md → .agent.md migration).
+  for (const relPath of LEGACY_PATHS) {
+    const abs = resolveInside(targetDir, relPath);
+    if (await readIfExists(abs) === null) continue;
+    if (dryRun) {
+      log(`plan remove (legacy): ${relPath}`);
+      result.planned.push(relPath);
+    } else {
+      await removeFile(abs);
+      log(`removed (legacy): ${relPath}`);
+      result.removed.push(relPath);
+    }
   }
 
   // Clean up empty directories.
