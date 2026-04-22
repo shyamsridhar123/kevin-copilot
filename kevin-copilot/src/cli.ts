@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 import { parse, HELP_TEXT } from "./args";
 import { install } from "./install";
+import { uninstall } from "./uninstall";
 
 // Keep in sync with package.json.
-const VERSION = "0.2.0";
+const VERSION = "0.2.1";
 
 async function main(argv: string[]): Promise<number> {
   let parsed;
@@ -25,6 +26,14 @@ async function main(argv: string[]): Promise<number> {
   }
 
   try {
+    if (parsed.command === "uninstall") {
+      await uninstall({
+        targetDir: parsed.targetDir,
+        dryRun: parsed.dryRun,
+      });
+      return 0;
+    }
+
     await install({
       targetDir: parsed.targetDir,
       intensity: parsed.intensity,

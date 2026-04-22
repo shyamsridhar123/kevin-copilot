@@ -1,20 +1,159 @@
+<div align="center">
+
 # kevin-copilot
 
-Terse-by-default Copilot voice kit. One `npx` call drops the instructions, chat modes, and a commit prompt into your repo.
+<img src="./media/kevin.gif" alt="Kevin Malone — Why waste time say lot word when few word do trick" width="480" />
 
-**Kevin is a label, not a character.** No references to any TV show, person, or fictional company. Correctness always wins over style.
+**Make GitHub Copilot talk like Kevin.**
+*VS Code Chat, Copilot CLI, cloud agent, code review — every response, not just chat.*
+*One command. Measured 40–75% fewer response tokens. Zero hit to correctness.*
 
-## Install
+[![npm](https://img.shields.io/npm/v/kevin-copilot?color=%23cc2a2a&label=npm)](https://www.npmjs.com/package/kevin-copilot)
+[![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
+[![node](https://img.shields.io/badge/node-%E2%89%A518-43853d)](https://nodejs.org)
+[![copilot](https://img.shields.io/badge/github-copilot-8957e5)](https://github.com/features/copilot)
+
+> **"Why waste time say lot word when few word do trick?"**
+> — Kevin Malone, accounting department, Dunder Mifflin Scranton
+
+</div>
+
+---
 
 ```
 npx kevin-copilot init
 ```
 
-Or with explicit intensity:
+Done. Open Copilot anywhere — VS Code Chat, `copilot` CLI, cloud agent, PR review. Ask thing. Get answer. No filler. No "Great question!". No closing paragraph explaining what it just said.
+
+---
+
+## Problem
+
+Default Copilot:
+
+> Great question! To reverse a string in Python, you can use slicing. Here's how you would do it: `s[::-1]`. This works by specifying a step of -1, which iterates through the string from end to start. Let me know if you'd like more examples or have any other questions!
+
+You wanted `s[::-1]`. You paid tokens for 56 other words.
+
+**Kevin:**
+
+> `s[::-1]` — slice step -1.
+
+Same answer. 85% fewer tokens. Kevin save you token. Kevin hero.
+
+---
+
+## Measured savings (not vibes)
+
+Three-arm eval. 10-prompt suite. Each Kevin mode must beat a generic "be terse" control by ≥5 percentage points **and** clear an absolute reduction threshold. Otherwise the eval fails and the CI gate fails and Kevin is sad.
+
+| Mode | Target | Measured | vs. generic-terse |
+|------|--------|----------|-------------------|
+| `lite` | ≥40% | **66.5%** | +7.8 pp |
+| `full` | ≥60% | **79.3%** | +20.6 pp |
+| `ultra` | ≥75% | **88.8%** | +30.0 pp |
+
+This is better than Kevin's chili. Reproduce with `npm run evals` in the source repo. Full report at `evals/report.md`.
+
+---
+
+## Install
+
+```bash
+# zero-install (recommended)
+npx kevin-copilot init
+
+# pick voice level
+npx kevin-copilot init --intensity full
+
+# see what it would do, touch nothing
+npx kevin-copilot init --dry-run
+
+# merge into existing AGENTS.md / copilot-instructions.md
+npx kevin-copilot init --merge
+```
+
+Requires Node 18+. Writes 8 files. Idempotent. If you already have an `AGENTS.md` or `.github/copilot-instructions.md`, use `--merge` — it wraps Kevin inside sentinel markers so you can re-run it without making a mess. Kevin is careful with documents. He learned this after Keleven.
+
+### Uninstall
+
+```bash
+# remove all Kevin files
+npx kevin-copilot uninstall
+
+# preview what would be removed
+npx kevin-copilot uninstall --dry-run
+```
+
+Removes every file Kevin installed. If you used `--merge`, the sentinel block is stripped and your original content stays. Customized files are skipped. Empty directories are cleaned up. Kevin leaves no crumbs. Except chili crumbs.
+
+---
+
+## The three Kevins
+
+| Mode | Voice | Cap |
+|------|-------|-----|
+| **Kevin Lite** | Short paragraphs. No preamble. No sign-off. | ~120 words |
+| **Kevin Full** | Fragments. Bullets. Articles optional. | ~60 words |
+| **Kevin Ultra** | `label: value` or code-only. No prose at all. | ~25 words |
+
+Lite is Kevin in a meeting. Full is Kevin at his desk. Ultra is Kevin trying to carry a pot of chili.
+
+---
+
+## Where Kevin shows up
+
+Kevin writes to two tiers of files — what GitHub Copilot itself reads.
+
+### Tier 1 — always-on, every surface
+`AGENTS.md` and `.github/copilot-instructions.md` are loaded automatically by Copilot wherever instructions are supported. No mode picker, no slash command, no opt-in. You install once, every response gets shorter.
+
+| Surface | Honors `AGENTS.md` | Honors `copilot-instructions.md` |
+|---|:---:|:---:|
+| VS Code Copilot Chat | ✅ | ✅ |
+| Copilot CLI (`copilot` / `gh copilot`) | ✅ | ✅ |
+| Copilot coding agent (cloud) | ✅ | ✅ |
+| Copilot code review | — | ✅ |
+| Inline code completion (ghost text) | — | — |
+
+Inline ghost-text completion ignores instruction files on every tool — that's a platform limit, not a Kevin limit. Everywhere else Copilot actually writes prose, Kevin shortens it.
+
+### Tier 2 — VS Code Chat extras
+These are VS Code–specific features layered on top. They won't surface in the CLI or cloud agent, but they're handy in the editor.
+
+**Chat modes → dropdown picker.** Top of Copilot Chat panel, there's a mode dropdown. After `init`, you'll see:
+- Kevin Lite
+- Kevin Full
+- Kevin Ultra
+
+Pick one. That's it. Everything you ask in that thread inherits the voice.
+
+**Slash prompts → type `/` in chat.**
+- `/kevin-commit` — conventional-commit message from staged diff. No body unless needed.
+- `/kevin-review` — single-line PR comments: `L42: bug: null deref on empty input. guard with if (!x) return.`
+- `/kevin-help` — quick reference card.
+
+### Runtime steering (say it in chat)
+- `talk like Kevin` — engage voice even in default mode
+- `fewer words` — step down one level (lite → full → ultra)
+- `stop Kevin` — back to default Copilot voice
+
+---
+
+## The token receipt
+
+Every substantive prose reply ends with one line:
 
 ```
-npx kevin-copilot init --intensity full
+— saved ~N tokens vs baseline
 ```
+
+Best estimate. No math required. Omitted for commit messages, PR review comments, help output, and pure code answers (don't break syntax highlighting over a joke).
+
+This is the only footer. Kevin does not add "Let me know if you have any questions!". Kevin assumes you will have questions. Kevin will answer them when they arrive. Kevin is not worried.
+
+---
 
 ## What it writes
 
@@ -32,52 +171,92 @@ AGENTS.md
     kevin-help.prompt.md
 ```
 
-## Response footer
+Eight files. One purpose. Shorter Copilot.
 
-Every substantive prose reply ends with one line:
-
-```
-— saved ~N tokens vs baseline
-```
-
-Best estimate, no calculation required. Omitted for: commit messages, PR review comments, help output, and code-only answers.
-
-## Intensities
-
-| Level | Voice |
-|-------|-------|
-| `lite` (default) | Short paragraphs. No preamble or closing filler. Under ~120 words. |
-| `full` | Fragments and bullets. Drop articles. Under ~60 words. |
-| `ultra` | `label: value` or code-only. Under ~25 words. |
-
-You can change modes at any time — just re-run `init` with a different `--intensity` and pass `--force` or `--merge`.
+---
 
 ## Flags
+
+### `init` flags
 
 | Flag | Effect |
 |------|--------|
 | `--target <dir>` | Where to write. Default: `.` |
 | `--intensity lite\|full\|ultra` | Voice level. Default: `lite` |
-| `--force` | Overwrite on conflict. |
-| `--merge` | Append Kevin section between sentinel markers in existing `AGENTS.md` / `.github/copilot-instructions.md`. Idempotent. |
-| `--dry-run` | Print planned writes, touch nothing. |
+| `--force` | Overwrite on conflict |
+| `--merge` | Append Kevin between sentinel markers. Idempotent. |
+| `--dry-run` | Print planned writes, touch nothing |
 
-`--force` and `--merge` are mutually exclusive.
+`--force` and `--merge` are mutually exclusive. Like Kevin and diets.
 
-## Trigger phrases
+Change modes anytime — re-run `init` with a different `--intensity` plus `--force` or `--merge`.
 
-Inside Copilot Chat you can steer runtime tone:
+### `uninstall` flags
 
-- `talk like Kevin` — engage the voice rules even if the current chat mode is default.
-- `fewer words` — step down one level (lite → full → ultra).
-- `stop Kevin` — drop back to default Copilot voice for this thread.
+| Flag | Effect |
+|------|--------|
+| `--target <dir>` | Where to remove from. Default: `.` |
+| `--dry-run` | Print planned removals, touch nothing |
 
-## Why
+---
 
-Default Copilot answers lean on preamble, hedging, and closing filler that you paid tokens for and didn't want. Kevin rewrites the house style without touching correctness. Response tokens drop, you read faster, context budget lasts longer.
+## Prior art & inspiration
 
-Measured via a three-arm eval — `baseline`, `generic_terse` (terse but no Kevin rules, as a control), and each Kevin mode — across a 10-prompt internal suite. Kevin must clear both an absolute reduction threshold (lite ≥40%, full ≥60%, ultra ≥75%) and beat the `generic_terse` control by ≥5pp. See `evals/report.md` in the source repo.
+Kevin stands on the shoulders of shorter people:
+
+- **[Caveman Claude](https://github.com/rafaelrinaldi/caveman-claude)** — Claude Code system prompt that speaks in caveman English. Caveman inspired Kevin. Caveman smart. Kevin different tribe, same fire.
+- **[AGENTS.md](https://agents.md)** — the cross-agent instructions standard. Kevin writes one.
+- **[GitHub Copilot custom instructions](https://docs.github.com/en/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot)** — the surface Kevin steers.
+
+Kevin is Copilot-first. Caveman is Claude-first. You can use both. Both do trick. Few word.
+
+---
+
+## FAQ
+
+**Does this hurt correctness?**
+No. Correctness always wins over style. Kevin is not allowed to skip reasoning, drop warnings, or omit safety checks. Kevin is terse, not reckless. Kevin has made mistakes with money. He is not making them with your code.
+
+**Does it work in the `copilot` CLI?**
+Yes. `AGENTS.md` and `.github/copilot-instructions.md` are read by Copilot CLI, cloud agent, and VS Code Chat alike. Run `copilot` from a Kevin-initialized repo and you get terse answers. Chat modes and slash prompts are VS Code Chat extras on top — they don't appear in the CLI, but they don't need to; the instructions already shortened everything.
+
+**Does it work in Cursor / Cline / Claude Code / Windsurf?**
+`AGENTS.md` is honored by most modern agent surfaces. The `.github/copilot-instructions.md`, `.chatmode.md`, and `.prompt.md` files are GitHub Copilot–specific. Kevin's chat modes won't appear in other tools, but the instructions still flatten output noticeably.
+
+**Can I uninstall Kevin?**
+Yes. `npx kevin-copilot uninstall`. Removes all Kevin files. If you used `--merge`, only the Kevin sentinel block is removed — your original content stays. Run `--dry-run` first to see what it'll do. Kevin respects boundaries. Eventually.
+
+**Can I change intensity later?**
+Yes. `npx kevin-copilot init --intensity ultra --force` or `--merge`. Kevin adapts. He once switched from chili to cookies. He can switch modes.
+
+**What if my repo already has `AGENTS.md`?**
+Use `--merge`. Sentinel markers. Safe to re-run. Kevin will not overwrite your work. He is not that kind of Kevin.
+
+**Why is it called Kevin?**
+Because Kevin Malone, a fictional accountant, delivered the thesis of this entire project in one line on a television show and nobody has improved on it since: *"Why waste time say lot word when few word do trick."*
+
+This repo is a fan project. The Office, Dunder Mifflin, and the character Kevin Malone are property of their respective owners (NBCUniversal). No endorsement, affiliation, or ownership is implied. Kevin Malone did not sign off on this. Kevin Malone is eating chili.
+
+**Is this a joke?**
+The README is a joke. The savings are not.
+
+---
+
+## Development
+
+```bash
+git clone https://github.com/shyamsridhar123/kevin-copilot
+cd kevin-copilot
+npm install
+npm run build
+npm test        # 46 tests
+npm run evals   # three-arm reduction eval, exits non-zero on regression
+```
+
+PRs welcome. Keep them short. Kevin would.
+
+---
 
 ## License
 
-MIT.
+MIT. See [LICENSE](./LICENSE).

@@ -54,3 +54,19 @@ test("parse: version aliases", () => {
 test("parse: unknown command rejected", () => {
   assert.throws(() => parse(["launch"]), /unknown command/);
 });
+
+test("parse: uninstall with defaults", () => {
+  const r = parse(["uninstall"]);
+  assert.equal(r.command, "uninstall");
+  if (r.command !== "uninstall") return;
+  assert.equal(r.targetDir, ".");
+  assert.equal(r.dryRun, false);
+});
+
+test("parse: uninstall with flags", () => {
+  const r = parse(["uninstall", "--target", "/tmp/x", "--dry-run"]);
+  assert.equal(r.command, "uninstall");
+  if (r.command !== "uninstall") return;
+  assert.equal(r.targetDir, "/tmp/x");
+  assert.equal(r.dryRun, true);
+});

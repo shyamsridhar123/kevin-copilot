@@ -34,3 +34,24 @@ export async function ensureTargetExists(targetDir: string): Promise<void> {
   if (!stat) throw new Error(`target directory does not exist: ${targetDir}`);
   if (!stat.isDirectory()) throw new Error(`target is not a directory: ${targetDir}`);
 }
+
+export async function removeFile(filePath: string): Promise<boolean> {
+  try {
+    await fs.unlink(filePath);
+    return true;
+  } catch (err: unknown) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") return false;
+    throw err;
+  }
+}
+
+export async function removeDirIfEmpty(dirPath: string): Promise<boolean> {
+  try {
+    await fs.rmdir(dirPath);
+    return true;
+  } catch (err: unknown) {
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code === "ENOENT" || code === "ENOTEMPTY") return false;
+    throw err;
+  }
+}
