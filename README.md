@@ -20,7 +20,7 @@
 
 ---
 
-```
+```bash
 npx kevin-copilot init
 ```
 
@@ -61,17 +61,27 @@ This is better than Kevin's chili. Reproduce with `npm run evals` in the source 
 ## Install
 
 ```bash
-# zero-install (recommended)
+# zero-install — run directly
 npx kevin-copilot init
 
+# or install globally
+npm install -g kevin-copilot
+kevin-copilot init
+
+# or as a dev dependency
+npm install --save-dev kevin-copilot
+npx kevin-copilot init
+```
+
+```bash
 # pick voice level
-npx kevin-copilot init --intensity full
+kevin-copilot init --intensity full
 
 # see what it would do, touch nothing
-npx kevin-copilot init --dry-run
+kevin-copilot init --dry-run
 
 # merge into existing AGENTS.md / copilot-instructions.md
-npx kevin-copilot init --merge
+kevin-copilot init --merge
 ```
 
 Requires Node 18+. Writes 8 files. Idempotent. If you already have an `AGENTS.md` or `.github/copilot-instructions.md`, use `--merge` — it wraps Kevin inside sentinel markers so you can re-run it without making a mess. Kevin is careful with documents. He learned this after Keleven.
@@ -79,11 +89,10 @@ Requires Node 18+. Writes 8 files. Idempotent. If you already have an `AGENTS.md
 ### Uninstall
 
 ```bash
-# remove all Kevin files
-npx kevin-copilot uninstall
+kevin-copilot uninstall
 
 # preview what would be removed
-npx kevin-copilot uninstall --dry-run
+kevin-copilot uninstall --dry-run
 ```
 
 Removes every file Kevin installed. If you used `--merge`, the sentinel block is stripped and your original content stays. Customized files are skipped. Empty directories are cleaned up. Kevin leaves no crumbs. Except chili crumbs.
@@ -91,11 +100,11 @@ Removes every file Kevin installed. If you used `--merge`, the sentinel block is
 ### Update
 
 ```bash
-# pull latest templates from npm and re-install
-npx kevin-copilot@latest update
+# pull latest templates and re-install
+kevin-copilot update
 
 # update with a different intensity
-npx kevin-copilot@latest update --intensity ultra
+kevin-copilot update --intensity ultra
 ```
 
 Removes old files (including legacy chatmodes), then re-installs with the latest templates. One command. Kevin upgrades.
