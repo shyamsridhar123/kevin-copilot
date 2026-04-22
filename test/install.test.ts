@@ -304,3 +304,47 @@ test("uninstall: removes legacy .chatmode.md files", async () => {
     await rmDir(dir);
   }
 });
+
+// ── Update flow tests ──
+
+test("update: preserves user content when --merge is used", async () => {
+  const dir = await mkTmp();
+  try {
+    const target = path.join(dir, "AGENTS.md");
+    await fs.writeFile(target, "# Team AGENTS\n\nOur custom rules.\n", "utf8");
+    // Initial merge install
+    await install({ targetDir: dir, intensity: "lite", force: false, merge: true, dryRun: false, log: () => {} });
+    const afterInstall = await fs.readFile(target, "utf8");
+    assert.ok(afterInstall.includes("Our custom rules."));
+    assert.ok(afterInstall.includes(BEGIN_MARKER));
+
+    // Simulate update --merge: uninstall then install with merge
+    await uninstall({ targetDir: dir, dryRun: false, log: () => {} });
+    const afterUninstall = await fs.readFile(target, "utf8");
+    assert.ok(afterUninstall.includes("Our custom rules."));
+    assert.ok(!afterUninstall.includes(BEGIN_MARKER));
+
+    await install({ targetDir: dir, intensity: "full", force: false, merge: true, dryRun: false, log: () => {} });
+    const afterUpdate = await fs.readFile(target, "utf8");
+    assert.ok(afterUpdate.includes("Our custom rules."), "user content must survive update --merge");
+    assert.ok(afterUpdate.includes(BEGIN_MARKER), "kevin block must be re-added");
+  } finally {
+    await rmDir(dir);
+  }
+});
+
+test("install: CRLF files treated as unchanged", async () => {
+  const dir = await mkTmp();
+  try {
+    await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, log: () => {} });
+    // Convert a file to CRLF
+    const target = path.join(dir, "AGENTS.md");
+    const content = await fs.readFile(target, "utf8");
+    await fs.writeFile(target, content.replace(/\n/g, "\r\n"), "utf8");
+
+    const r = await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, log: () => {} });
+    assert.ok(r.unchanged.includes("AGENTS.md"), "CRLF file should be treated as unchanged");
+  } finally {
+    await rmDir(dir);
+  }
+});

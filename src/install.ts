@@ -69,7 +69,8 @@ export async function install(params: InstallParams): Promise<InstallResult> {
       continue;
     }
 
-    if (existing === file.content) {
+    // Normalize CRLF for comparison to avoid false conflicts on Windows.
+    if (existing.replace(/\r\n/g, "\n") === file.content.replace(/\r\n/g, "\n")) {
       result.unchanged.push(file.path);
       continue;
     }

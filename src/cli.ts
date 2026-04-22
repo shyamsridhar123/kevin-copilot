@@ -44,7 +44,7 @@ async function main(argv: string[]): Promise<number> {
     await install({
       targetDir: parsed.targetDir,
       intensity: parsed.intensity,
-      force: parsed.command === "update" ? true : parsed.force,
+      force: parsed.command === "update" && !parsed.merge,
       merge: parsed.merge,
       dryRun: parsed.dryRun,
     });

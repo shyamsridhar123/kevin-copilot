@@ -89,6 +89,10 @@ export function parse(argv: string[]): ParsedArgs {
     throw new Error("--force and --merge are mutually exclusive");
   }
 
+  if (cmd === "update" && values.force) {
+    throw new Error("--force is not needed with update (force is implicit when --merge is not set)");
+  }
+
   return {
     command: cmd,
     targetDir: values.target as string,

@@ -87,3 +87,7 @@ test("parse: update with intensity", () => {
   assert.equal(r.intensity, "ultra");
   assert.equal(r.merge, true);
 });
+
+test("parse: update rejects --force", () => {
+  assert.throws(() => parse(["update", "--force"]), /not needed with update/);
+});
