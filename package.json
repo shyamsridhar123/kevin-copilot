@@ -1,6 +1,6 @@
 {
   "name": "kevin-copilot",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Make GitHub Copilot responses terse — across VS Code Chat, Copilot CLI, cloud agent, and code review. One command drops AGENTS.md, copilot-instructions.md, chat modes, and prompts into your repo. Measured 40–75% fewer response tokens without hurting correctness.",
   "bin": {
     "kevin-copilot": "./bin/kevin-copilot.js"

@@ -66,8 +66,8 @@ function removeSentinelBlock(content: string): string | null {
   const after = content.slice(end + END_MARKER.length);
 
   // Trim trailing blank lines between sections.
-  const cleaned = (before.replace(/\n+$/, "") + after.replace(/^\n+/, "\n")).trim();
-  return cleaned.length === 0 ? "" : cleaned + "\n";
+  const cleaned = (before.replace(/\n+$/, "") + after.replace(/^\n+/, "\n"));
+  return cleaned.length === 0 || cleaned === "\n" ? "" : cleaned.endsWith("\n") ? cleaned : cleaned + "\n";
 }
 
 /** Legacy paths from older versions that should also be cleaned up. */
