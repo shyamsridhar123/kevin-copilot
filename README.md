@@ -270,9 +270,17 @@ git clone https://github.com/shyamsridhar123/kevin-copilot
 cd kevin-copilot
 npm install
 npm run build
-npm test        # 46 tests
+npm test        # 49 tests
 npm run evals   # three-arm reduction eval, exits non-zero on regression
 ```
+
+### Verify the numbers yourself
+
+```bash
+npm run evals
+```
+
+Tokenizes 10 prompts × 5 arms (baseline, generic-terse, lite, full, ultra) using `gpt-tokenizer` (cl100k_base). Computes per-prompt and aggregate reduction percentages. Writes a full report to `evals/report.md`. Exits non-zero if any Kevin mode falls below its threshold or fails to beat the generic-terse control by ≥5 percentage points. No API calls, no credentials — runs entirely offline.
 
 PRs welcome. Keep them short. Kevin would.
 
