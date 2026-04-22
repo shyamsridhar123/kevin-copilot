@@ -1,5 +1,6 @@
-# Dotfolders (all hidden directories at any depth)
-.*/
+node_modules/
+dist/
+*.log
 
 # Compound engineering docs
 docs/brainstorms/
@@ -7,3 +8,9 @@ docs/ideation/
 docs/ideations/
 docs/plans/
 docs/solutions/
+
+# Sandbox / scratch
+sandbox/
+
+# ATV
+.atv/
