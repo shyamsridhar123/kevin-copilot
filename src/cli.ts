@@ -4,7 +4,7 @@ import { install } from "./install";
 import { uninstall } from "./uninstall";
 
 // Keep in sync with package.json.
-const VERSION = "0.2.3";
+const VERSION = "0.3.0";
 
 async function main(argv: string[]): Promise<number> {
   let parsed;
@@ -34,10 +34,17 @@ async function main(argv: string[]): Promise<number> {
       return 0;
     }
 
+    if (parsed.command === "update") {
+      await uninstall({
+        targetDir: parsed.targetDir,
+        dryRun: parsed.dryRun,
+      });
+    }
+
     await install({
       targetDir: parsed.targetDir,
       intensity: parsed.intensity,
-      force: parsed.force,
+      force: parsed.command === "update" ? true : parsed.force,
       merge: parsed.merge,
       dryRun: parsed.dryRun,
     });

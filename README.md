@@ -88,6 +88,18 @@ npx kevin-copilot uninstall --dry-run
 
 Removes every file Kevin installed. If you used `--merge`, the sentinel block is stripped and your original content stays. Customized files are skipped. Empty directories are cleaned up. Kevin leaves no crumbs. Except chili crumbs.
 
+### Update
+
+```bash
+# pull latest templates from npm and re-install
+npx kevin-copilot@latest update
+
+# update with a different intensity
+npx kevin-copilot@latest update --intensity ultra
+```
+
+Removes old files (including legacy chatmodes), then re-installs with the latest templates. One command. Kevin upgrades.
+
 ---
 
 ## The three Kevins

@@ -70,3 +70,20 @@ test("parse: uninstall with flags", () => {
   assert.equal(r.targetDir, "/tmp/x");
   assert.equal(r.dryRun, true);
 });
+
+test("parse: update with defaults", () => {
+  const r = parse(["update"]);
+  assert.equal(r.command, "update");
+  if (r.command !== "update") return;
+  assert.equal(r.intensity, "lite");
+  assert.equal(r.targetDir, ".");
+  assert.equal(r.dryRun, false);
+});
+
+test("parse: update with intensity", () => {
+  const r = parse(["update", "--intensity", "ultra", "--merge"]);
+  assert.equal(r.command, "update");
+  if (r.command !== "update") return;
+  assert.equal(r.intensity, "ultra");
+  assert.equal(r.merge, true);
+});

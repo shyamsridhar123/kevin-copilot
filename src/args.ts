@@ -2,7 +2,7 @@ import { parseArgs } from "node:util";
 import type { Intensity } from "./templates";
 
 export interface InitOptions {
-  command: "init";
+  command: "init" | "update";
   targetDir: string;
   intensity: Intensity;
   force: boolean;
@@ -25,6 +25,8 @@ export interface VersionOptions {
 }
 
 export type ParsedArgs = InitOptions | UninstallOptions | HelpOptions | VersionOptions;
+
+type InitCommand = "init" | "update";
 
 const VALID_INTENSITIES: readonly Intensity[] = ["lite", "full", "ultra"] as const;
 
@@ -57,9 +59,11 @@ export function parse(argv: string[]): ParsedArgs {
     };
   }
 
-  if (argv[0] !== "init") {
+  if (argv[0] !== "init" && argv[0] !== "update") {
     throw new Error(`unknown command: ${argv[0]}`);
   }
+
+  const cmd = argv[0] as InitCommand;
 
   const { values } = parseArgs({
     args: argv.slice(1),
@@ -86,7 +90,7 @@ export function parse(argv: string[]): ParsedArgs {
   }
 
   return {
-    command: "init",
+    command: cmd,
     targetDir: values.target as string,
     intensity,
     force: values.force as boolean,
@@ -101,26 +105,29 @@ Shrinks responses across VS Code Chat, Copilot CLI, cloud agent, and code review
 Usage:
   kevin-copilot init [--target <dir>] [--intensity lite|full|ultra]
                      [--force | --merge] [--dry-run]
+  kevin-copilot update [--target <dir>] [--intensity lite|full|ultra]
+                       [--merge] [--dry-run]
   kevin-copilot uninstall [--target <dir>] [--dry-run]
   kevin-copilot --help
   kevin-copilot --version
 
 Commands:
   init           Install Kevin files into your repo.
+  update         Remove old files and re-install with latest templates.
   uninstall      Remove all Kevin files from your repo.
 
-Flags (init):
+Flags (init / update):
   --target <dir>       Target directory. Default: current directory.
   --intensity <level>  lite (default) | full | ultra
-  --force              Overwrite conflicting files without prompting.
+  --force              Overwrite conflicting files without prompting (init only).
   --merge              Append Kevin sections to existing instructions/AGENTS.
-  --dry-run            Print planned writes, do not touch disk.
+  --dry-run            Print planned actions, do not touch disk.
 
 Flags (uninstall):
   --target <dir>       Target directory. Default: current directory.
   --dry-run            Print planned removals, do not touch disk.
 
-Writes (init):
+Writes (init / update):
   AGENTS.md
   .github/copilot-instructions.md
   .github/agents/kevin-{lite,full,ultra}.agent.md
