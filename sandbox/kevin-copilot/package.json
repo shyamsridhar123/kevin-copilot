@@ -1,0 +1,33 @@
+{
+  "name": "kevin-copilot",
+  "version": "0.2.0",
+  "description": "Copilot-native terseness kit. Drops a small kit of instructions, chatmodes, and a prompt into your repo so GitHub Copilot Chat stops padding every answer.",
+  "bin": {
+    "kevin-copilot": "./bin/kevin-copilot.js"
+  },
+  "main": "./dist/cli.js",
+  "files": [
+    "dist",
+    "bin",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "node --import tsx --test test/args.test.ts test/templates.test.ts test/install.test.ts",
+    "evals": "tsx evals/run.ts",
+    "prepack": "npm run build"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": ["github-copilot", "copilot", "terse", "compression", "chatmode", "prompt"],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "tsx": "^4.7.2",
+    "@types/node": "^20.12.7",
+    "gpt-tokenizer": "^2.1.2"
+  }
+}

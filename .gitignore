@@ -1,0 +1,9 @@
+# Dotfolders (all hidden directories at any depth)
+.*/
+
+# Compound engineering docs
+docs/brainstorms/
+docs/ideation/
+docs/ideations/
+docs/plans/
+docs/solutions/

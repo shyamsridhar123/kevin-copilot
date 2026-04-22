@@ -1,0 +1,92 @@
+[
+  {
+    "id": "explain-async-await",
+    "question": "What does async/await do in JavaScript?",
+    "baseline": "Great question! Let me walk you through this. In JavaScript, `async` and `await` are syntactic sugar over Promises that make asynchronous code easier to read and reason about. When you mark a function with `async`, it automatically returns a Promise, and inside that function you can use the `await` keyword to pause execution until a Promise resolves. This is really useful because it lets you write asynchronous code that looks and behaves more like synchronous code, which can be much easier to follow. Without async/await, you would typically chain `.then()` calls on Promises, which can get unwieldy as the number of asynchronous operations grows. I hope this helps clarify things! Let me know if you have any follow-up questions.",
+    "generic_terse": "In short: `async` makes a function return a Promise. `await` pauses inside that function until a Promise resolves and gives you the value. It's basically an alternative to chaining `.then()` calls, so async code reads more like sync code. Throwing inside an async function becomes a rejected Promise. Hope that helps!",
+    "lite": "`async` marks a function that returns a Promise. `await` pauses inside that function until a Promise resolves, then gives you the value. Lets you write async code that reads top-to-bottom instead of chained `.then()` calls.",
+    "full": "async: function returns Promise. await: pauses until Promise resolves, yields value. replaces .then() chains. async throws become Promise rejects.",
+    "ultra": "async fn → Promise. await → unwraps Promise, pauses fn. error → rejection."
+  },
+  {
+    "id": "debug-null-ref",
+    "question": "I'm getting 'Cannot read property x of undefined'. How do I debug?",
+    "baseline": "I'd be happy to help you debug this! This is a very common JavaScript error and it means you're trying to access a property (in this case `x`) on a value that is `undefined`. Here are some steps you can take to debug this issue. First, you'll want to add a `console.log` statement just before the line that is throwing the error to check what value you're actually working with. Second, consider using optional chaining (the `?.` operator) which will return `undefined` instead of throwing when the left side is null or undefined. Third, make sure to validate your inputs at function boundaries to catch cases where data might be missing. Fourth, you can use the debugger statement or set a breakpoint in your browser's DevTools to inspect the variable at runtime. Let me know which step you'd like to explore further!",
+    "generic_terse": "Here's what's happening: the value on the left of `.x` is undefined. To debug, you can log it right before the access, or use optional chaining (`obj?.x`) to avoid the throw. An early return guard or a breakpoint in DevTools also works well to find the source. Let me know if you want me to dig deeper.",
+    "lite": "The object holding `x` is undefined. Log it right before the access: `console.log(obj)`. Use optional chaining `obj?.x` to guard. Or add an early guard: `if (!obj) return`. Set a breakpoint if the source isn't obvious.",
+    "full": "cause: left of `.x` is undefined.\nfix: log value before access; guard with `obj?.x`; early return if null; breakpoint to find source.",
+    "ultra": "cause: left side undefined. fix: `obj?.x` or guard."
+  },
+  {
+    "id": "refactor-if-chain",
+    "question": "How do I refactor a long if-else chain that dispatches on a string type?",
+    "baseline": "Great refactoring question! Long if-else chains that dispatch on a string are a classic code smell and there are several clean ways to refactor them. One popular approach is to use a lookup object (sometimes called a dispatch table or strategy map). You would create an object where the keys are the string values you're checking against and the values are the functions or values you want to dispatch to. Then instead of the if-else chain, you simply look up the handler by key and invoke it. This is generally cleaner, easier to extend, and often more performant. Another approach is to use a `switch` statement, though that's usually only a modest improvement. If the types are well known at compile time and you're using TypeScript, you can also use discriminated unions with exhaustiveness checking, which gives you compile-time safety. Hope this gives you some ideas!",
+    "generic_terse": "You can use a lookup object: `const handlers = { a: handleA, b: handleB }; (handlers[type] ?? fallback)(payload);`. It's generally cleaner and easier to extend than a chained if-else. In TypeScript with a finite string union, you can also use a discriminated switch with `assertNever` for exhaustiveness checking.",
+    "lite": "Replace with a lookup:\n```js\nconst handlers = { a: handleA, b: handleB, c: handleC };\n(handlers[type] ?? handleDefault)(payload);\n```\nFor TypeScript with a finite union, use a discriminated `switch` and an `assertNever` default for exhaustiveness.",
+    "full": "fix: dispatch table. `const handlers = { a: fnA, b: fnB }; handlers[type]?.(x)`.\nTS: discriminated switch + `assertNever` default.",
+    "ultra": "```js\nconst h = { a: fnA, b: fnB }; h[type]?.(x);\n```"
+  },
+  {
+    "id": "write-test-array-sum",
+    "question": "Write a test for a function `sum(arr)` that sums an array of numbers.",
+    "baseline": "Sure! Here's a thorough test suite for your `sum` function. I've included several cases to make sure we cover the common scenarios you might encounter. We'll test with a basic positive array, an empty array (which should return 0), an array with negative numbers, an array with a single element, and an array that contains floats. I'm using Node's built-in test runner here, but the same structure works for Jest, Vitest, or Mocha with minimal changes.\n\n```js\nimport { test } from 'node:test';\nimport assert from 'node:assert/strict';\nimport { sum } from './sum.js';\n\ntest('sum of positive numbers', () => { assert.equal(sum([1,2,3]), 6); });\ntest('sum of empty array is zero', () => { assert.equal(sum([]), 0); });\ntest('sum with negatives', () => { assert.equal(sum([-1,-2,3]), 0); });\ntest('sum single element', () => { assert.equal(sum([7]), 7); });\ntest('sum floats', () => { assert.ok(Math.abs(sum([0.1,0.2]) - 0.3) < 1e-9); });\n```\n\nLet me know if you want me to add edge cases for non-numeric input or very large arrays.",
+    "generic_terse": "Covers positives, empty, negatives, single element, and floats:\n\n```js\nimport { test } from 'node:test';\nimport assert from 'node:assert/strict';\nimport { sum } from './sum.js';\n\ntest('positives', () => assert.equal(sum([1,2,3]), 6));\ntest('empty', () => assert.equal(sum([]), 0));\ntest('negatives', () => assert.equal(sum([-1,-2,3]), 0));\ntest('single', () => assert.equal(sum([7]), 7));\ntest('floats', () => assert.ok(Math.abs(sum([0.1,0.2]) - 0.3) < 1e-9));\n```",
+    "lite": "```js\nimport { test } from 'node:test';\nimport assert from 'node:assert/strict';\nimport { sum } from './sum.js';\n\ntest('positives', () => assert.equal(sum([1,2,3]), 6));\ntest('empty', () => assert.equal(sum([]), 0));\ntest('negatives', () => assert.equal(sum([-1,-2,3]), 0));\ntest('single', () => assert.equal(sum([7]), 7));\ntest('floats', () => assert.ok(Math.abs(sum([0.1,0.2]) - 0.3) < 1e-9));\n```",
+    "full": "```js\nimport { test } from 'node:test';\nimport assert from 'node:assert/strict';\nimport { sum } from './sum.js';\ntest('pos', () => assert.equal(sum([1,2,3]), 6));\ntest('empty', () => assert.equal(sum([]), 0));\ntest('neg', () => assert.equal(sum([-1,-2,3]), 0));\n```",
+    "ultra": "```js\ntest('pos', () => assert.equal(sum([1,2,3]), 6));\ntest('empty', () => assert.equal(sum([]), 0));\n```"
+  },
+  {
+    "id": "summarize-pr",
+    "question": "Summarize this PR: adds pagination to the /users endpoint using limit/offset query params and updates tests.",
+    "baseline": "Sure thing! Here's a summary of what this PR does. The pull request introduces pagination support to the `/users` REST endpoint. Specifically, it adds two new query parameters, `limit` and `offset`, which clients can use to request a specific slice of the user list rather than receiving the full collection. The `limit` parameter controls how many users come back in a single response, and the `offset` parameter controls where in the list the page starts. Alongside the endpoint change, the test suite has been updated to cover the new behavior, including verifying that defaults are applied when the parameters are omitted and that the pagination math is correct at the boundaries. Overall, a focused and well-scoped change. Let me know if you'd like a deeper look at any particular aspect!",
+    "generic_terse": "This PR adds `limit` and `offset` query parameters to the `/users` endpoint for paginated responses, and updates the test suite to cover default values and boundary cases.",
+    "lite": "Adds `limit` and `offset` query params to `/users` for paginated list responses. Tests updated for defaults and boundary cases.",
+    "full": "feat(users): paginate `/users` via `limit`+`offset`. tests cover defaults and boundaries.",
+    "ultra": "feat(users): pagination via limit/offset. tests updated."
+  },
+  {
+    "id": "explain-closure",
+    "question": "What is a closure in JavaScript?",
+    "baseline": "A closure in JavaScript is one of the most important and elegant features of the language, but it can take a little bit of time to fully wrap your head around it. At its core, a closure is a function that has access to its own scope, the scope of the outer function that it was defined within, and the global scope. Closures are created every time a function is created, but they become especially useful and noticeable when a function is returned from another function. The inner function maintains a reference to the variables in the outer function even after the outer function has finished executing, which is what allows things like data privacy and function factories to work. Let me know if you'd like me to show a concrete example!",
+    "generic_terse": "A closure is a function bundled with the variables from the scope where it was defined. When an inner function is returned from an outer function, it keeps access to the outer function's locals even after the outer function returns.\n\n```js\nfunction counter() { let n = 0; return () => ++n; }\nconst c = counter(); c(); c(); // 2\n```",
+    "lite": "A closure is a function plus the variables from the scope it was defined in. Returned inner functions keep access to the outer function's locals after the outer returns.\n\n```js\nfunction counter() { let n = 0; return () => ++n; }\nconst c = counter(); c(); c(); // 2\n```",
+    "full": "closure: function + captured outer scope. inner fn keeps outer locals after outer returns.\n```js\nfunction c(){let n=0;return ()=>++n}\n```",
+    "ultra": "fn + captured scope. outer locals live via inner."
+  },
+  {
+    "id": "small-util-debounce",
+    "question": "Write a debounce function in TypeScript.",
+    "baseline": "Absolutely, happy to help! Debounce is a really common utility. The idea is that you have a function that might be called many times in rapid succession (for example in response to a user typing) and you only want to actually execute the underlying behavior once things have settled down for a given amount of time. Here's a clean TypeScript implementation with proper typing using generics so it works with any function signature.\n\n```ts\nexport function debounce<Args extends unknown[]>(fn: (...args: Args) => void, ms: number): (...args: Args) => void {\n  let t: ReturnType<typeof setTimeout> | undefined;\n  return (...args: Args) => {\n    if (t) clearTimeout(t);\n    t = setTimeout(() => fn(...args), ms);\n  };\n}\n```\n\nLet me know if you'd like a version with a leading edge, cancel method, or Promise-returning variant.",
+    "generic_terse": "```ts\nexport function debounce<A extends unknown[]>(fn: (...args: A) => void, ms: number) {\n  let t: ReturnType<typeof setTimeout> | undefined;\n  return (...args: A) => {\n    if (t) clearTimeout(t);\n    t = setTimeout(() => fn(...args), ms);\n  };\n}\n```",
+    "lite": "```ts\nexport function debounce<A extends unknown[]>(fn: (...a: A) => void, ms: number) {\n  let t: ReturnType<typeof setTimeout> | undefined;\n  return (...a: A) => { if (t) clearTimeout(t); t = setTimeout(() => fn(...a), ms); };\n}\n```",
+    "full": "```ts\nexport const debounce = <A extends unknown[]>(fn:(...a:A)=>void, ms:number) => {\n  let t:ReturnType<typeof setTimeout>|undefined;\n  return (...a:A)=>{ if(t) clearTimeout(t); t=setTimeout(()=>fn(...a),ms); };\n};\n```",
+    "ultra": "```ts\nconst debounce=<A extends unknown[]>(f:(...a:A)=>void,ms:number)=>{let t:any;return(...a:A)=>{clearTimeout(t);t=setTimeout(()=>f(...a),ms)}}\n```"
+  },
+  {
+    "id": "git-undo-commit",
+    "question": "How do I undo my last commit but keep the changes?",
+    "baseline": "Good question! There are a couple of different ways to do this in git and the right one depends on what you actually want to happen. The most common case is that you want to undo the commit but keep all of your changes in the working directory so that you can fix them and commit again. For that, the command you want is `git reset --soft HEAD~1` which will move the branch pointer back by one commit while leaving the changes staged. Alternatively, `git reset HEAD~1` (which defaults to `--mixed`) will also keep the changes but unstage them, requiring you to `git add` again before re-committing. You should be very careful to never use `git reset --hard HEAD~1` if you want to keep your changes, because that variant discards them entirely. Also, if you've already pushed the commit to a shared branch, you may want to consider `git revert` instead so you don't rewrite shared history.",
+    "generic_terse": "Run `git reset --soft HEAD~1` to undo the commit while keeping your changes staged. You can use `git reset HEAD~1` (default `--mixed`) to unstage them as well. Just avoid `--hard` since that discards the changes entirely. If the commit was already pushed to a shared branch, you'll want to use `git revert` instead. Hope that helps!",
+    "lite": "`git reset --soft HEAD~1` — undoes the commit, keeps changes staged. Use `--mixed` (default) to unstage them too. Don't use `--hard`. If the commit was pushed to a shared branch, use `git revert` instead.",
+    "full": "`git reset --soft HEAD~1` keeps staged. `--mixed` unstages. never `--hard`. pushed: use `git revert`.",
+    "ultra": "`git reset --soft HEAD~1`. pushed → `git revert`."
+  },
+  {
+    "id": "explain-promise-all",
+    "question": "What's the difference between Promise.all and Promise.allSettled?",
+    "baseline": "Great question — these two methods look similar but have an important behavioral difference that really matters in practice. `Promise.all` takes an iterable of promises and returns a single promise that resolves when every one of them resolves, with an array of their values in the same order. However, if any one of the input promises rejects, the returned promise immediately rejects with that rejection reason, and you lose the results of the others (though they still run). `Promise.allSettled`, on the other hand, waits for all of the input promises to finish — whether by fulfilling or rejecting — and returns an array of result objects, each with a `status` of either `'fulfilled'` (with a `value`) or `'rejected'` (with a `reason`). So the rule of thumb is: use `Promise.all` when a failure in any one promise should short-circuit the whole operation, and use `Promise.allSettled` when you need to know the outcome of every promise regardless of success or failure.",
+    "generic_terse": "Basically: `Promise.all` rejects as soon as any input promise rejects, otherwise resolves with an array of values. `Promise.allSettled`, on the other hand, always waits for every promise and returns an array of `{status, value|reason}` objects — it never rejects. So use `all` for fail-fast behavior, and `allSettled` when you need every outcome regardless of success or failure.",
+    "lite": "`Promise.all`: rejects fast on the first rejection, otherwise resolves with an array of values. `Promise.allSettled`: always waits for all; returns `{status, value|reason}[]` — never rejects. Use `all` for short-circuit, `allSettled` when you want every outcome.",
+    "full": "all: fail-fast; first reject rejects whole. allSettled: waits all; `{status,value|reason}[]`; never rejects.",
+    "ultra": "all: fail-fast. allSettled: wait all, never rejects."
+  },
+  {
+    "id": "what-is-rest",
+    "question": "What is a REST API?",
+    "baseline": "Good foundational question! REST stands for Representational State Transfer and it's an architectural style for designing networked applications, most commonly web services over HTTP. A REST API exposes resources (like users, orders, or products) at URL endpoints, and clients interact with those resources by sending HTTP requests using standard verbs — GET to read, POST to create, PUT or PATCH to update, and DELETE to remove. A well-designed REST API is stateless, meaning each request contains all the information the server needs to handle it, and it uses standard HTTP status codes to communicate success or failure. REST APIs typically exchange data in JSON format today, though XML and other formats are also valid. The style emphasizes simplicity, cacheability, and a uniform interface, which is part of why it's become the default for most web APIs even though newer styles like GraphQL and gRPC exist.",
+    "generic_terse": "A REST API exposes resources at URL endpoints and lets clients interact with them via HTTP verbs: GET to read, POST to create, PUT/PATCH to update, DELETE to remove. It's stateless — each request stands alone — uses HTTP status codes for outcomes, and typically exchanges JSON payloads.",
+    "lite": "A REST API exposes resources at URLs and uses HTTP verbs (GET/POST/PUT/PATCH/DELETE) to read and mutate them. Stateless: each request stands alone. Status codes signal outcome. Payloads are usually JSON.",
+    "full": "REST: resources at URLs; HTTP verbs (GET/POST/PUT/PATCH/DELETE); stateless; JSON; status codes signal outcome.",
+    "ultra": "resources+URL+HTTP verbs. stateless. JSON."
+  }
+]

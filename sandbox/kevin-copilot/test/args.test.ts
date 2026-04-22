@@ -1,0 +1,56 @@
+import { test } from "node:test";
+import * as assert from "node:assert/strict";
+import { parse } from "../src/args";
+
+test("parse: init with defaults", () => {
+  const r = parse(["init"]);
+  assert.equal(r.command, "init");
+  if (r.command !== "init") return;
+  assert.equal(r.intensity, "lite");
+  assert.equal(r.targetDir, ".");
+  assert.equal(r.force, false);
+  assert.equal(r.merge, false);
+  assert.equal(r.dryRun, false);
+});
+
+test("parse: init with full flags", () => {
+  const r = parse(["init", "--target", "/tmp/x", "--intensity", "full", "--force"]);
+  assert.equal(r.command, "init");
+  if (r.command !== "init") return;
+  assert.equal(r.intensity, "full");
+  assert.equal(r.targetDir, "/tmp/x");
+  assert.equal(r.force, true);
+});
+
+test("parse: init with merge and dry-run", () => {
+  const r = parse(["init", "--merge", "--dry-run", "--intensity", "ultra"]);
+  assert.equal(r.command, "init");
+  if (r.command !== "init") return;
+  assert.equal(r.merge, true);
+  assert.equal(r.dryRun, true);
+  assert.equal(r.intensity, "ultra");
+});
+
+test("parse: rejects bogus intensity", () => {
+  assert.throws(() => parse(["init", "--intensity", "extra-spicy"]), /invalid --intensity/);
+});
+
+test("parse: force and merge are mutually exclusive", () => {
+  assert.throws(() => parse(["init", "--force", "--merge"]), /mutually exclusive/);
+});
+
+test("parse: help aliases", () => {
+  assert.equal(parse([]).command, "help");
+  assert.equal(parse(["help"]).command, "help");
+  assert.equal(parse(["--help"]).command, "help");
+  assert.equal(parse(["-h"]).command, "help");
+});
+
+test("parse: version aliases", () => {
+  assert.equal(parse(["--version"]).command, "version");
+  assert.equal(parse(["-v"]).command, "version");
+});
+
+test("parse: unknown command rejected", () => {
+  assert.throws(() => parse(["launch"]), /unknown command/);
+});
