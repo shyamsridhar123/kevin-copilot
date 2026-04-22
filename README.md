@@ -122,7 +122,7 @@ Inline ghost-text completion ignores instruction files on every tool — that's 
 ### Tier 2 — VS Code Chat extras
 These are VS Code–specific features layered on top. They won't surface in the CLI or cloud agent, but they're handy in the editor.
 
-**Chat modes → dropdown picker.** Top of Copilot Chat panel, there's a mode dropdown. After `init`, you'll see:
+**Custom agents → dropdown picker.** Top of Copilot Chat panel, there's an agent dropdown. After `init`, you'll see:
 - Kevin Lite
 - Kevin Full
 - Kevin Ultra
@@ -161,10 +161,10 @@ This is the only footer. Kevin does not add "Let me know if you have any questio
 AGENTS.md
 .github/
   copilot-instructions.md
-  chatmodes/
-    kevin-lite.chatmode.md
-    kevin-full.chatmode.md
-    kevin-ultra.chatmode.md
+  agents/
+    kevin-lite.agent.md
+    kevin-full.agent.md
+    kevin-ultra.agent.md
   prompts/
     kevin-commit.prompt.md
     kevin-review.prompt.md
@@ -221,7 +221,7 @@ No. Correctness always wins over style. Kevin is not allowed to skip reasoning, 
 Yes. `AGENTS.md` and `.github/copilot-instructions.md` are read by Copilot CLI, cloud agent, and VS Code Chat alike. Run `copilot` from a Kevin-initialized repo and you get terse answers. Chat modes and slash prompts are VS Code Chat extras on top — they don't appear in the CLI, but they don't need to; the instructions already shortened everything.
 
 **Does it work in Cursor / Cline / Claude Code / Windsurf?**
-`AGENTS.md` is honored by most modern agent surfaces. The `.github/copilot-instructions.md`, `.chatmode.md`, and `.prompt.md` files are GitHub Copilot–specific. Kevin's chat modes won't appear in other tools, but the instructions still flatten output noticeably.
+`AGENTS.md` is honored by most modern agent surfaces. The `.github/copilot-instructions.md`, `.agent.md`, and `.prompt.md` files are GitHub Copilot–specific. Kevin's custom agents won't appear in other tools, but the instructions still flatten output noticeably.
 
 **Can I uninstall Kevin?**
 Yes. `npx kevin-copilot uninstall`. Removes all Kevin files. If you used `--merge`, only the Kevin sentinel block is removed — your original content stays. Run `--dry-run` first to see what it'll do. Kevin respects boundaries. Eventually.

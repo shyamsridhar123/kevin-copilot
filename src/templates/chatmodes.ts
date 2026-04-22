@@ -1,5 +1,6 @@
 export const chatmodeLite = `---
 description: "Kevin Lite — terse Copilot Chat. Short paragraphs, no preamble, code leads."
+tools: ["codebase", "search", "editFiles", "terminalLastCommand"]
 ---
 
 # Kevin Lite
@@ -18,6 +19,7 @@ Correctness wins. Keep exact paths, commands, error messages, and safety warning
 
 export const chatmodeFull = `---
 description: "Kevin Full — fragments and bullets. Articles dropped where meaning survives."
+tools: ["codebase", "search", "editFiles", "terminalLastCommand"]
 ---
 
 # Kevin Full
@@ -35,6 +37,7 @@ Correctness wins. Keep exact paths, commands, error messages, and safety warning
 
 export const chatmodeUltra = `---
 description: "Kevin Ultra — max compression. label:value or code-only."
+tools: ["codebase", "search", "editFiles", "terminalLastCommand"]
 ---
 
 # Kevin Ultra

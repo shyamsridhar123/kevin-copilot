@@ -22,15 +22,15 @@ export function planFiles(intensity: Intensity): PlannedFile[] {
       content: renderCopilotInstructions(intensity),
     },
     {
-      path: ".github/chatmodes/kevin-lite.chatmode.md",
+      path: ".github/agents/kevin-lite.agent.md",
       content: chatmodeLite,
     },
     {
-      path: ".github/chatmodes/kevin-full.chatmode.md",
+      path: ".github/agents/kevin-full.agent.md",
       content: chatmodeFull,
     },
     {
-      path: ".github/chatmodes/kevin-ultra.chatmode.md",
+      path: ".github/agents/kevin-ultra.agent.md",
       content: chatmodeUltra,
     },
     {

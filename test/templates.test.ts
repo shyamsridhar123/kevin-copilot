@@ -21,9 +21,9 @@ for (const intensity of INTENSITIES) {
     const files = planFiles(intensity);
     const paths = files.map((f) => f.path).sort();
     assert.deepEqual(paths, [
-      ".github/chatmodes/kevin-full.chatmode.md",
-      ".github/chatmodes/kevin-lite.chatmode.md",
-      ".github/chatmodes/kevin-ultra.chatmode.md",
+      ".github/agents/kevin-full.agent.md",
+      ".github/agents/kevin-lite.agent.md",
+      ".github/agents/kevin-ultra.agent.md",
       ".github/copilot-instructions.md",
       ".github/prompts/kevin-commit.prompt.md",
       ".github/prompts/kevin-help.prompt.md",
@@ -63,10 +63,10 @@ for (const intensity of INTENSITIES) {
   });
 }
 
-test("chatmodes: each declares frontmatter with description", () => {
+test("agents: each declares frontmatter with description", () => {
   const files = planFiles("lite");
   for (const f of files) {
-    if (!f.path.includes(".chatmode.md")) continue;
+    if (!f.path.includes(".agent.md")) continue;
     assert.match(f.content, /^---\n/);
     assert.match(f.content, /\ndescription: /);
   }
@@ -101,7 +101,7 @@ test("help prompt: declares frontmatter and lists modes", () => {
 });
 
 for (const intensity of INTENSITIES) {
-  test(`planFiles(${intensity}): response footer is declared in instructions, agents, and all chatmodes`, () => {
+  test(`planFiles(${intensity}): response footer is declared in instructions, agents, and all agent modes`, () => {
     const files = planFiles(intensity);
     const footer = "— saved ~N tokens vs baseline";
     const main = files.find((f) => f.path === ".github/copilot-instructions.md");
@@ -111,7 +111,7 @@ for (const intensity of INTENSITIES) {
     assert.ok(agents);
     assert.ok(agents!.content.includes(footer), "AGENTS.md missing footer");
     for (const f of files) {
-      if (!f.path.includes(".chatmode.md")) continue;
+      if (!f.path.includes(".agent.md")) continue;
       assert.ok(f.content.includes(footer), `${f.path} missing footer`);
     }
   });

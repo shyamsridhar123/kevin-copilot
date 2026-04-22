@@ -123,7 +123,7 @@ Flags (uninstall):
 Writes (init):
   AGENTS.md
   .github/copilot-instructions.md
-  .github/chatmodes/kevin-{lite,full,ultra}.chatmode.md
+  .github/agents/kevin-{lite,full,ultra}.agent.md
   .github/prompts/kevin-commit.prompt.md
   .github/prompts/kevin-review.prompt.md
   .github/prompts/kevin-help.prompt.md

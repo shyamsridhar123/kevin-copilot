@@ -72,7 +72,7 @@ function removeSentinelBlock(content: string): string | null {
 
 /** Directories that kevin creates and should clean up if empty. */
 const CLEANUP_DIRS = [
-  ".github/chatmodes",
+  ".github/agents",
   ".github/prompts",
   ".github",
 ];

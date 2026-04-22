@@ -274,8 +274,8 @@ test("uninstall: cleans up empty directories", async () => {
   try {
     await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, log: () => {} });
     await uninstall({ targetDir: dir, dryRun: false, log: () => {} });
-    const chatmodesExists = await fs.stat(path.join(dir, ".github", "chatmodes")).catch(() => null);
-    assert.equal(chatmodesExists, null, ".github/chatmodes should be removed");
+    const agentsExists = await fs.stat(path.join(dir, ".github", "agents")).catch(() => null);
+    assert.equal(agentsExists, null, ".github/agents should be removed");
     const promptsExists = await fs.stat(path.join(dir, ".github", "prompts")).catch(() => null);
     assert.equal(promptsExists, null, ".github/prompts should be removed");
   } finally {
