@@ -1,6 +1,12 @@
 import { renderCopilotInstructions, type Intensity } from "./copilot-instructions";
 import { renderAgentsMd } from "./agents";
-import { chatmodeLite, chatmodeFull, chatmodeUltra, chatmodeAccountant } from "./chatmodes";
+import {
+  chatmodeLite,
+  chatmodeFull,
+  chatmodeUltra,
+  chatmodeAccountant,
+  chatmodeAdhd,
+} from "./chatmodes";
 import { promptCommit, promptReview, promptHelp } from "./prompts";
 
 export type { Intensity };
@@ -36,6 +42,10 @@ export function planFiles(intensity: Intensity): PlannedFile[] {
     {
       path: ".github/agents/kevin-accountant.agent.md",
       content: chatmodeAccountant,
+    },
+    {
+      path: ".github/agents/kevin-adhd.agent.md",
+      content: chatmodeAdhd,
     },
     {
       path: ".github/prompts/kevin-commit.prompt.md",

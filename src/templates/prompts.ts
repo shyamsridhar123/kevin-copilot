@@ -50,6 +50,7 @@ Token-reduction voice layer for GitHub Copilot.
 - **Lite**: short paragraphs, no preamble. Target ~40% fewer tokens.
 - **Full**: fragments and bullets, drop articles. Target ~60% fewer tokens.
 - **Ultra**: label:value or code-only. Target ~75% fewer tokens.
+- **ADHD**: action-first, numbered steps, concrete next actions. Target clarity over prose.
 - **Accountant**: spreadsheet-terse, numbers forward, line-item reviews. Target ~70% fewer tokens.
 
 Default mode is set in \`AGENTS.md\` and \`.github/copilot-instructions.md\`. Re-run \`npx kevin-copilot\` with a different \`--intensity\` to change it.
@@ -61,6 +62,8 @@ Type these phrases in chat at any time:
 - \`talk like Kevin\` → apply voice strictly.
 - \`fewer words\` → re-emit previous response compressed.
 - \`stop Kevin\` → revert to default Copilot behavior.
+- \`adhd mode\` or \`i have adhd\` → switch to ADHD output shape.
+- \`stop adhd mode\` or \`normal mode\` → leave ADHD output shape.
 
 ## Prompts
 

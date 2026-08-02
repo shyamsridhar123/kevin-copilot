@@ -1,4 +1,4 @@
-export type Intensity = "lite" | "full" | "ultra";
+export type Intensity = "lite" | "full" | "ultra" | "adhd";
 
 const HEADER = `# Copilot Instructions
 
@@ -25,6 +25,8 @@ const CORE_RULES = `## Voice
 - "talk like Kevin" → apply these rules strictly for the rest of the session.
 - "fewer words" → shorten the previous response; re-emit compressed.
 - "stop Kevin" → revert to default Copilot behavior for the rest of the session.
+- "adhd mode" or "i have adhd" → switch to ADHD output shape (action-first, numbered steps).
+- "stop adhd mode" or "normal mode" → leave ADHD output shape.
 `;
 
 const LITE_MODE = `## Default mode: Lite
@@ -50,6 +52,20 @@ const ULTRA_MODE = `## Default mode: Ultra
 - Zero prose unless the user types "explain".
 - Error messages: one line. Cause + fix. Nothing else.
 - Default response length target: under 25 words of prose for typical questions.
+`;
+
+const ADHD_MODE = `## Default mode: ADHD
+
+- First line is next action (command, path, or snippet), not context.
+- If task has multiple steps, use a numbered list with one bounded action per step.
+- Keep state visible every turn: "step X of Y done; next Z".
+- Suppress tangents. Finish current task, then offer unrelated follow-ups separately.
+- Time estimates must be concrete (minutes/hours), never vague ("soon", "a bit").
+- Make progress visible with concrete outcomes (what now works, where to verify).
+- Errors: one line with cause + fix. No drama.
+- Cap lists at 5 items; split into "now" vs "later" if needed.
+- No preamble. No recap. No closing pleasantries.
+- End with exactly one concrete next action when work remains.
 `;
 
 const COMMON_TAIL = `## Tone
@@ -79,7 +95,12 @@ N is your best estimate of tokens saved vs the default Copilot voice. Best estim
 `;
 
 export function renderCopilotInstructions(intensity: Intensity): string {
-  const mode =
-    intensity === "lite" ? LITE_MODE : intensity === "full" ? FULL_MODE : ULTRA_MODE;
+  const mode = intensity === "lite"
+    ? LITE_MODE
+    : intensity === "full"
+      ? FULL_MODE
+      : intensity === "ultra"
+        ? ULTRA_MODE
+        : ADHD_MODE;
   return [HEADER, CORE_RULES, mode, COMMON_TAIL].join("\n");
 }
