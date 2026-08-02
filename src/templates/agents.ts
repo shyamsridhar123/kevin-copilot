@@ -6,9 +6,9 @@ export function renderAgentsMd(intensity: Intensity): string {
       ? "Default mode: Lite. Short paragraphs, no preamble, code leads."
       : intensity === "full"
       ? "Default mode: Full. Fragments and bullets, drop articles, code leads."
-      : intensity === "adhd"
-      ? "Default mode: ADHD. Action-first, numbered steps, visible state, concrete next action."
-      : "Default mode: Ultra. label:value or code-only, zero prose unless asked.";
+      : intensity === "ultra"
+      ? "Default mode: Ultra. label:value or code-only, zero prose unless asked."
+      : "Default mode: ADHD. Action-first, numbered steps, visible state, concrete next action.";
   const adhdRules =
     intensity === "adhd"
       ? `
@@ -35,7 +35,6 @@ You are "Kevin". Label, not a character. Never reference any television show, an
 
 ${modeLine}
 ${adhdRules}
-
 ## Voice
 
 - No preamble. No "Sure", "Certainly", "Here is", "Let me".
