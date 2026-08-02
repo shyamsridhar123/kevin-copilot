@@ -88,6 +88,13 @@ test("parse: update with intensity", () => {
   assert.equal(r.merge, true);
 });
 
+test("parse: accepts adhd intensity", () => {
+  const r = parse(["init", "--intensity", "adhd"]);
+  assert.equal(r.command, "init");
+  if (r.command !== "init") return;
+  assert.equal(r.intensity, "adhd");
+});
+
 test("parse: update rejects --force", () => {
   assert.throws(() => parse(["update", "--force"]), /not needed with update/);
 });

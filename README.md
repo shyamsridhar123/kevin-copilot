@@ -84,7 +84,7 @@ kevin-copilot init --dry-run
 kevin-copilot init --merge
 ```
 
-Requires Node 18+. Writes 9 files. Idempotent. If you already have an `AGENTS.md` or `.github/copilot-instructions.md`, use `--merge` — it wraps Kevin inside sentinel markers so you can re-run it without making a mess. Kevin is careful with documents. He learned this after Keleven.
+Requires Node 18+. Writes 10 files. Idempotent. If you already have an `AGENTS.md` or `.github/copilot-instructions.md`, use `--merge` — it wraps Kevin inside sentinel markers so you can re-run it without making a mess. Kevin is careful with documents. He learned this after Keleven.
 
 ### Uninstall
 
@@ -111,16 +111,18 @@ Removes old files (including legacy chatmodes), then re-installs with the latest
 
 ---
 
-## The three Kevins
+## Kevin Modes
 
 | Mode | Voice | Cap |
 |------|-------|-----|
 | **Kevin Lite** | Short paragraphs. No preamble. No sign-off. | ~120 words |
 | **Kevin Full** | Fragments. Bullets. Articles optional. | ~60 words |
 | **Kevin Ultra** | `label: value` or code-only. No prose at all. | ~25 words |
+| **Kevin ADHD** | Action first. Numbered steps. One clear next action. | Clarity-first |
 | **Kevin Accountant** | Spreadsheet-terse. Numbers forward. Line-item reviews. | ~40 words |
 
 Lite is Kevin in a meeting. Full is Kevin at his desk. Ultra is Kevin carrying a pot of chili. Accountant is Kevin doing the books — every answer reads like a ledger entry.
+ADHD mode adapts the response shape for execution: action-first, state visible, and tangents suppressed.
 
 ---
 
@@ -148,6 +150,7 @@ These are VS Code–specific features layered on top. They won't surface in the 
 - Kevin Lite
 - Kevin Full
 - Kevin Ultra
+- Kevin ADHD
 - Kevin Accountant
 
 Pick one. That's it. Everything you ask in that thread inherits the voice.
@@ -161,6 +164,8 @@ Pick one. That's it. Everything you ask in that thread inherits the voice.
 - `talk like Kevin` — engage voice even in default mode
 - `fewer words` — step down one level (lite → full → ultra)
 - `stop Kevin` — back to default Copilot voice
+- `adhd mode` or `i have adhd` — switch to ADHD output shape
+- `stop adhd mode` or `normal mode` — leave ADHD output shape
 
 ---
 
@@ -188,6 +193,7 @@ AGENTS.md
     kevin-lite.agent.md
     kevin-full.agent.md
     kevin-ultra.agent.md
+    kevin-adhd.agent.md
     kevin-accountant.agent.md
   prompts/
     kevin-commit.prompt.md
@@ -195,7 +201,7 @@ AGENTS.md
     kevin-help.prompt.md
 ```
 
-Nine files. One purpose. Shorter Copilot.
+Ten files. One purpose. Shorter Copilot.
 
 ---
 
@@ -206,7 +212,7 @@ Nine files. One purpose. Shorter Copilot.
 | Flag | Effect |
 |------|--------|
 | `--target <dir>` | Where to write. Default: `.` |
-| `--intensity lite\|full\|ultra` | Voice level. Default: `lite` |
+| `--intensity lite\|full\|ultra\|adhd` | Voice level. Default: `lite` |
 | `--force` | Overwrite on conflict |
 | `--merge` | Append Kevin between sentinel markers. Idempotent. |
 | `--dry-run` | Print planned writes, touch nothing |
@@ -229,6 +235,7 @@ Change modes anytime — re-run `init` with a different `--intensity` plus `--fo
 Kevin stands on the shoulders of shorter people:
 
 - **[Caveman Claude](https://github.com/JuliusBrussee/caveman)** — Claude Code system prompt that speaks in caveman English. Caveman inspired Kevin. Caveman smart. Kevin different tribe, same fire.
+- **[i-have-adhd](https://github.com/ayghri/i-have-adhd)** — action-first ADHD response shaping; inspired Kevin ADHD mode.
 - **[AGENTS.md](https://agents.md)** — the cross-agent instructions standard. Kevin writes one.
 - **[GitHub Copilot custom instructions](https://docs.github.com/en/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot)** — the surface Kevin steers.
 

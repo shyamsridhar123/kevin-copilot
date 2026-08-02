@@ -35,7 +35,7 @@ function normalize(s: string): string {
  */
 function buildKnownFiles(): Map<string, Set<string>> {
   const known = new Map<string, Set<string>>();
-  const intensities: Intensity[] = ["lite", "full", "ultra"];
+  const intensities: Intensity[] = ["lite", "full", "ultra", "adhd"];
   for (const intensity of intensities) {
     for (const file of planFiles(intensity)) {
       let variants = known.get(file.path);

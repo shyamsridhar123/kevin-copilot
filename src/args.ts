@@ -28,7 +28,7 @@ export type ParsedArgs = InitOptions | UninstallOptions | HelpOptions | VersionO
 
 type InitCommand = "init" | "update";
 
-const VALID_INTENSITIES: readonly Intensity[] = ["lite", "full", "ultra"] as const;
+const VALID_INTENSITIES: readonly Intensity[] = ["lite", "full", "ultra", "adhd"] as const;
 
 function isIntensity(s: string): s is Intensity {
   return (VALID_INTENSITIES as readonly string[]).includes(s);
@@ -107,9 +107,9 @@ export const HELP_TEXT = `kevin-copilot — terseness kit for GitHub Copilot.
 Shrinks responses across VS Code Chat, Copilot CLI, cloud agent, and code review.
 
 Usage:
-  kevin-copilot init [--target <dir>] [--intensity lite|full|ultra]
+  kevin-copilot init [--target <dir>] [--intensity lite|full|ultra|adhd]
                      [--force | --merge] [--dry-run]
-  kevin-copilot update [--target <dir>] [--intensity lite|full|ultra]
+  kevin-copilot update [--target <dir>] [--intensity lite|full|ultra|adhd]
                        [--merge] [--dry-run]
   kevin-copilot uninstall [--target <dir>] [--dry-run]
   kevin-copilot --help
@@ -122,7 +122,7 @@ Commands:
 
 Flags (init / update):
   --target <dir>       Target directory. Default: current directory.
-  --intensity <level>  lite (default) | full | ultra
+  --intensity <level>  lite (default) | full | ultra | adhd
   --force              Overwrite conflicting files without prompting (init only).
   --merge              Append Kevin sections to existing instructions/AGENTS.
   --dry-run            Print planned actions, do not touch disk.
@@ -134,7 +134,7 @@ Flags (uninstall):
 Writes (init / update):
   AGENTS.md
   .github/copilot-instructions.md
-  .github/agents/kevin-{lite,full,ultra,accountant}.agent.md
+  .github/agents/kevin-{lite,full,ultra,adhd,accountant}.agent.md
   .github/prompts/kevin-commit.prompt.md
   .github/prompts/kevin-review.prompt.md
   .github/prompts/kevin-help.prompt.md

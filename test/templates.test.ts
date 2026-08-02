@@ -14,14 +14,15 @@ const FORBIDDEN = [
   "the office",
 ];
 
-const INTENSITIES: Intensity[] = ["lite", "full", "ultra"];
+const INTENSITIES: Intensity[] = ["lite", "full", "ultra", "adhd"];
 
 for (const intensity of INTENSITIES) {
-  test(`planFiles(${intensity}): produces 9 files at expected paths`, () => {
+test(`planFiles(${intensity}): produces 10 files at expected paths`, () => {
     const files = planFiles(intensity);
     const paths = files.map((f) => f.path).sort();
     assert.deepEqual(paths, [
       ".github/agents/kevin-accountant.agent.md",
+      ".github/agents/kevin-adhd.agent.md",
       ".github/agents/kevin-full.agent.md",
       ".github/agents/kevin-lite.agent.md",
       ".github/agents/kevin-ultra.agent.md",
@@ -99,6 +100,7 @@ test("help prompt: declares frontmatter and lists modes", () => {
   assert.match(p!.content, /lite/i);
   assert.match(p!.content, /full/i);
   assert.match(p!.content, /ultra/i);
+  assert.match(p!.content, /adhd/i);
 });
 
 for (const intensity of INTENSITIES) {
