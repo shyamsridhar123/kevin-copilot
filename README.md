@@ -4,6 +4,8 @@ Portable concise-response customizations for GitHub Copilot.
 
 Kevin provides repository instructions, five manually selected agents, four cross-surface skills, VS Code prompt files, and an installable Copilot plugin.
 
+![Kevin compressing a Copilot response](media/kevin.gif)
+
 ## Choose an installation model
 
 ### Project mode
@@ -51,11 +53,11 @@ copilot plugin marketplace add shyamsridhar123/kevin-copilot
 copilot plugin install kevin-copilot@kevin-copilot
 ```
 
-Verify with:
+Verify inside a session with `/agent` (agent picker) and `/skills` (skill list), or from the shell:
 
-```text
-/agent
-/skills list
+```bash
+copilot plugin list
+copilot plugins list --kind plugin --kind skill
 ```
 
 Use agents non-interactively with `copilot --agent kevin-ultra`.
@@ -147,9 +149,23 @@ Keep the repository-wide voice in `.github/copilot-instructions.md`; path-specif
 
 The Copilot app consumes the same repository and plugin customizations. Kevin does not ship a VS Code extension or MCP server because it needs no custom UI or external tools.
 
-## Measurement status
+## Verification status
 
-`npm run evals` is an offline synthetic fixture benchmark. It counts tokens in hand-authored answers; it does **not** prove model compliance, semantic equivalence, latency, or production token savings.
+What is verified by running this repository:
+
+| Claim | How it is checked | Status |
+|---|---|---|
+| Project install writes 13 files under `.github/` | `kevin-copilot init --target <dir>`, `npm test` | Verified |
+| Personal install writes 10 files under `~/.copilot` and omits prompt files | `kevin-copilot init --scope personal --target <dir>`, `npm test` | Verified |
+| Uninstall removes generated files and empty directories, skips modified files | `kevin-copilot uninstall [--scope personal]`, `npm test` | Verified |
+| Agents are manual-only (`disable-model-invocation: true`) and use portable tools | `npm test` | Verified |
+| Token receipts are off unless `--token-receipt` is passed | `npm test` | Verified |
+| Plugin manifest exposes five agents and four skills | `npm test` | Verified |
+| Response tokens drop 50–90% on fixtures | `npm run evals` | Verified on synthetic fixtures only |
+| Live Copilot models obey the voice rules | Not automated | Unverified |
+| Latency, semantic equivalence, production token savings | Not automated | Unverified |
+
+`npm run evals` is an offline synthetic fixture benchmark. It counts tokens in hand-authored answers; it does **not** prove model compliance, semantic equivalence, latency, or production token savings. The token receipt is off by default because a model estimate is not telemetry.
 
 Real evaluation should run repeated prompts against supported Copilot models and record:
 
@@ -158,8 +174,6 @@ Real evaluation should run repeated prompts against supported Copilot models and
 - semantic correctness and required-information checks
 - preserved safety warnings
 - agent discovery and available tools
-
-The token receipt is off by default because a model estimate is not telemetry.
 
 ## Development
 
