@@ -1,0 +1,14 @@
+{
+  "name": "kevin-copilot",
+  "description": "Portable concise-response agents and workflows for GitHub Copilot.",
+  "version": "0.4.0",
+  "author": {
+    "name": "shyamsridhar123"
+  },
+  "homepage": "https://github.com/shyamsridhar123/kevin-copilot",
+  "repository": "https://github.com/shyamsridhar123/kevin-copilot",
+  "license": "MIT",
+  "keywords": ["copilot", "agents", "skills", "concise"],
+  "agents": "agents/",
+  "skills": "skills/"
+}

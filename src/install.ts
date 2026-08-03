@@ -1,4 +1,4 @@
-import { planFiles, type Intensity } from "./templates";
+import { planFiles, type InstallScope, type Intensity } from "./templates";
 import {
   resolveInside,
   readIfExists,
@@ -17,6 +17,9 @@ export interface InstallParams {
   force: boolean;
   merge: boolean;
   dryRun: boolean;
+  scope?: InstallScope;
+  tokenReceipt?: boolean;
+  includeAgentsMd?: boolean;
   /** Optional override for conflict prompts, used by tests. */
   resolveConflict?: (relPath: string) => Promise<"accept" | "skip" | "quit">;
   /** Optional log sink, defaults to console. */
@@ -38,13 +41,16 @@ export async function install(params: InstallParams): Promise<InstallResult> {
     force,
     merge,
     dryRun,
+    scope = "project",
+    tokenReceipt = false,
+    includeAgentsMd = false,
     resolveConflict = promptConflict,
     log = (line: string) => process.stdout.write(line + "\n"),
   } = params;
 
   await ensureTargetExists(targetDir);
 
-  const files = planFiles(intensity);
+  const files = planFiles(intensity, { scope, tokenReceipt, includeAgentsMd });
   const result: InstallResult = {
     written: [],
     merged: [],

@@ -1,5 +1,5 @@
 import * as path from "node:path";
-import { planFiles, type Intensity } from "./templates";
+import { planFiles, type InstallScope, type Intensity } from "./templates";
 import {
   resolveInside,
   readIfExists,
@@ -13,6 +13,7 @@ import { isMergeable, BEGIN_MARKER, END_MARKER } from "./conflict";
 export interface UninstallParams {
   targetDir: string;
   dryRun: boolean;
+  scope?: InstallScope;
   /** Optional log sink, defaults to console. */
   log?: (line: string) => void;
 }
@@ -33,17 +34,21 @@ function normalize(s: string): string {
  * Build a map of unique file paths → set of all known kevin content variants
  * across all intensity levels.
  */
-function buildKnownFiles(): Map<string, Set<string>> {
+function buildKnownFiles(scope: InstallScope): Map<string, Set<string>> {
   const known = new Map<string, Set<string>>();
-  const intensities: Intensity[] = ["lite", "full", "ultra", "adhd"];
+  const intensities: Intensity[] = ["lite", "full", "ultra", "adhd", "accountant"];
   for (const intensity of intensities) {
-    for (const file of planFiles(intensity)) {
-      let variants = known.get(file.path);
-      if (!variants) {
-        variants = new Set();
-        known.set(file.path, variants);
+    for (const tokenReceipt of [false, true]) {
+      for (const includeAgentsMd of [false, true]) {
+        for (const file of planFiles(intensity, { scope, tokenReceipt, includeAgentsMd })) {
+          let variants = known.get(file.path);
+          if (!variants) {
+            variants = new Set();
+            known.set(file.path, variants);
+          }
+          variants.add(normalize(file.content));
+        }
       }
-      variants.add(normalize(file.content));
     }
   }
   return known;
@@ -78,23 +83,31 @@ const LEGACY_PATHS = [
 ];
 
 /** Directories that kevin creates and should clean up if empty. */
-const CLEANUP_DIRS = [
-  ".github/agents",
-  ".github/chatmodes",
-  ".github/prompts",
-  ".github",
-];
+function cleanupDirs(scope: InstallScope): string[] {
+  const prefix = scope === "project" ? ".github/" : "";
+  const dirs = [
+    "skills/kevin-compress",
+    "skills/kevin-commit",
+    "skills/kevin-review",
+    "skills/kevin-help",
+    "agents",
+    "skills",
+  ].map((dir) => `${prefix}${dir}`);
+  if (scope === "project") dirs.push(".github/chatmodes", ".github/prompts", ".github");
+  return dirs;
+}
 
 export async function uninstall(params: UninstallParams): Promise<UninstallResult> {
   const {
     targetDir,
     dryRun,
+    scope = "project",
     log = (line: string) => process.stdout.write(line + "\n"),
   } = params;
 
   await ensureTargetExists(targetDir);
 
-  const known = buildKnownFiles();
+  const known = buildKnownFiles(scope);
   const result: UninstallResult = {
     removed: [],
     cleaned: [],
@@ -157,7 +170,7 @@ export async function uninstall(params: UninstallParams): Promise<UninstallResul
   }
 
   // Remove legacy files from older versions (e.g. .chatmode.md → .agent.md migration).
-  for (const relPath of LEGACY_PATHS) {
+  for (const relPath of scope === "project" ? LEGACY_PATHS : []) {
     const abs = resolveInside(targetDir, relPath);
     if (await readIfExists(abs) === null) continue;
     if (dryRun) {
@@ -172,7 +185,7 @@ export async function uninstall(params: UninstallParams): Promise<UninstallResul
 
   // Clean up empty directories.
   if (!dryRun) {
-    for (const dir of CLEANUP_DIRS) {
+    for (const dir of cleanupDirs(scope)) {
       const abs = resolveInside(targetDir, dir);
       if (await removeDirIfEmpty(abs)) {
         log(`removed empty directory: ${dir}`);

@@ -4,7 +4,7 @@ import { install } from "./install";
 import { uninstall } from "./uninstall";
 
 // Keep in sync with package.json.
-const VERSION = "0.3.2";
+const VERSION = "0.4.0";
 
 async function main(argv: string[]): Promise<number> {
   let parsed;
@@ -30,6 +30,7 @@ async function main(argv: string[]): Promise<number> {
       await uninstall({
         targetDir: parsed.targetDir,
         dryRun: parsed.dryRun,
+        scope: parsed.scope,
       });
       return 0;
     }
@@ -38,6 +39,7 @@ async function main(argv: string[]): Promise<number> {
       await uninstall({
         targetDir: parsed.targetDir,
         dryRun: parsed.dryRun,
+        scope: parsed.scope,
       });
     }
 
@@ -47,6 +49,9 @@ async function main(argv: string[]): Promise<number> {
       force: parsed.command === "update" && !parsed.merge,
       merge: parsed.merge,
       dryRun: parsed.dryRun,
+      scope: parsed.scope,
+      tokenReceipt: parsed.tokenReceipt,
+      includeAgentsMd: parsed.includeAgentsMd,
     });
     return 0;
   } catch (err) {
