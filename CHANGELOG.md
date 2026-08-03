@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0
+
+- Added project and personal installation scopes.
+- Added cross-surface Agent Skills and a native Copilot plugin marketplace.
+- Updated agents to portable tools, explicit invocation controls, and VS Code handoffs.
+- Added Accountant as a selectable intensity.
+- Made estimated token receipts opt-in and clarified synthetic evaluation limits.
+- Stopped installing duplicate `AGENTS.md` instructions by default.
+
 All notable changes to `kevin-copilot` are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),

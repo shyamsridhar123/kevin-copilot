@@ -1,7 +1,7 @@
 {
   "name": "kevin-copilot",
-  "version": "0.3.2",
-  "description": "Make GitHub Copilot responses terse — across VS Code Chat, Copilot CLI, cloud agent, and code review. One command drops AGENTS.md, copilot-instructions.md, chat modes, and prompts into your repo. Measured 40–75% fewer response tokens without hurting correctness.",
+  "version": "0.4.0",
+  "description": "Portable concise-response instructions, agents, skills, prompts, and plugin for GitHub Copilot.",
   "bin": {
     "kevin-copilot": "./bin/kevin-copilot.js"
   },
@@ -11,7 +11,9 @@
     "bin",
     "README.md",
     "LICENSE",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "plugin",
+    ".github/plugin/marketplace.json"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",

@@ -6,6 +6,7 @@ export const END_MARKER = "<!-- kevin-copilot: end -->";
 const MERGEABLE = new Set<string>([
   "AGENTS.md",
   ".github/copilot-instructions.md",
+  "copilot-instructions.md",
 ]);
 
 export function isMergeable(relPath: string): boolean {

@@ -108,7 +108,9 @@ function main(): void {
   const lines: string[] = [];
   lines.push("# kevin-copilot eval report");
   lines.push("");
-  lines.push("Measured response-token reduction across 10 synthetic-but-representative prompts.");
+  lines.push("Offline token counts across 10 hand-authored response fixtures.");
+  lines.push("");
+  lines.push("> This synthetic benchmark does not run Copilot models or prove instruction compliance, semantic equivalence, latency, or production savings.");
   lines.push("Tokenizer: `gpt-tokenizer` (cl100k_base / GPT-4 family). Representative common denominator across the Copilot backend mix.");
   lines.push("");
   lines.push("## Per-prompt tokens");
@@ -158,7 +160,7 @@ function main(): void {
   lines.push("- **baseline**: representative default Copilot-style answer (preamble, hedging, closing filler).");
   lines.push("- **generic_terse** (control arm): same answer written terse but without Kevin voice rules — the \"just be brief\" null hypothesis.");
   lines.push("- **lite / full / ultra**: hand-authored to the voice rules in `.github/copilot-instructions.md`.");
-  lines.push("- Correctness-equivalent: each cell preserves the substantive content (exact commands, code, key terms).");
+  lines.push("  - Responses are hand-authored fixtures intended to preserve substantive content; semantic equivalence is not automatically judged.");
   lines.push("- Only response tokens counted. Prompt/system-instruction tokens not included.");
   lines.push("");
   lines.push("## Failure policy");

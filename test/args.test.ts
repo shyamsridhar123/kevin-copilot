@@ -95,6 +95,35 @@ test("parse: accepts adhd intensity", () => {
   assert.equal(r.intensity, "adhd");
 });
 
+test("parse: accepts accountant intensity", () => {
+  const r = parse(["init", "--intensity", "accountant"]);
+  assert.equal(r.command, "init");
+  if (r.command !== "init") return;
+  assert.equal(r.intensity, "accountant");
+});
+
+test("parse: personal scope defaults to Copilot home", () => {
+  const r = parse(["init", "--scope", "personal"]);
+  assert.equal(r.command, "init");
+  if (r.command !== "init") return;
+  assert.equal(r.scope, "personal");
+  assert.match(r.targetDir, /\.copilot$/);
+});
+
+test("parse: token receipt and AGENTS compatibility are opt-in", () => {
+  const defaults = parse(["init"]);
+  assert.equal(defaults.command, "init");
+  if (defaults.command !== "init") return;
+  assert.equal(defaults.tokenReceipt, false);
+  assert.equal(defaults.includeAgentsMd, false);
+
+  const enabled = parse(["init", "--token-receipt", "--agents-md"]);
+  assert.equal(enabled.command, "init");
+  if (enabled.command !== "init") return;
+  assert.equal(enabled.tokenReceipt, true);
+  assert.equal(enabled.includeAgentsMd, true);
+});
+
 test("parse: update rejects --force", () => {
   assert.throws(() => parse(["update", "--force"]), /not needed with update/);
 });

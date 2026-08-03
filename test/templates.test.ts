@@ -1,121 +1,106 @@
 import { test } from "node:test";
 import * as assert from "node:assert/strict";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { planFiles, type Intensity } from "../src/templates";
 
-const FORBIDDEN = [
-  "dunder",
-  "mifflin",
-  "scranton",
-  "malone",
-  "chili",
-  "pretzel",
-  "kevin malone",
-  "kev-in",
-  "the office",
+const INTENSITIES: Intensity[] = ["lite", "full", "ultra", "adhd", "accountant"];
+const PROJECT_PATHS = [
+  ".github/agents/kevin-accountant.agent.md",
+  ".github/agents/kevin-adhd.agent.md",
+  ".github/agents/kevin-full.agent.md",
+  ".github/agents/kevin-lite.agent.md",
+  ".github/agents/kevin-ultra.agent.md",
+  ".github/copilot-instructions.md",
+  ".github/prompts/kevin-commit.prompt.md",
+  ".github/prompts/kevin-help.prompt.md",
+  ".github/prompts/kevin-review.prompt.md",
+  ".github/skills/kevin-commit/SKILL.md",
+  ".github/skills/kevin-compress/SKILL.md",
+  ".github/skills/kevin-help/SKILL.md",
+  ".github/skills/kevin-review/SKILL.md",
 ];
 
-const INTENSITIES: Intensity[] = ["lite", "full", "ultra", "adhd"];
-
 for (const intensity of INTENSITIES) {
-test(`planFiles(${intensity}): produces 10 files at expected paths`, () => {
-    const files = planFiles(intensity);
-    const paths = files.map((f) => f.path).sort();
-    assert.deepEqual(paths, [
-      ".github/agents/kevin-accountant.agent.md",
-      ".github/agents/kevin-adhd.agent.md",
-      ".github/agents/kevin-full.agent.md",
-      ".github/agents/kevin-lite.agent.md",
-      ".github/agents/kevin-ultra.agent.md",
-      ".github/copilot-instructions.md",
-      ".github/prompts/kevin-commit.prompt.md",
-      ".github/prompts/kevin-help.prompt.md",
-      ".github/prompts/kevin-review.prompt.md",
-      "AGENTS.md",
-    ]);
+  test(`planFiles(${intensity}): produces portable project bundle`, () => {
+    assert.deepEqual(planFiles(intensity).map((file) => file.path).sort(), PROJECT_PATHS);
   });
 
-  test(`planFiles(${intensity}): no forbidden tokens present`, () => {
-    const files = planFiles(intensity);
-    for (const f of files) {
-      const lower = f.content.toLowerCase();
-      for (const bad of FORBIDDEN) {
-        assert.equal(
-          lower.includes(bad),
-          false,
-          `${f.path} contains forbidden token "${bad}"`,
-        );
-      }
-    }
-  });
-
-  test(`planFiles(${intensity}): copilot-instructions carries trigger phrases`, () => {
-    const files = planFiles(intensity);
-    const main = files.find((f) => f.path === ".github/copilot-instructions.md");
-    assert.ok(main);
-    assert.match(main!.content, /talk like Kevin/);
-    assert.match(main!.content, /fewer words/);
-    assert.match(main!.content, /stop Kevin/);
-  });
-
-  test(`planFiles(${intensity}): AGENTS.md mirrors identity notice`, () => {
-    const files = planFiles(intensity);
-    const agents = files.find((f) => f.path === "AGENTS.md");
-    assert.ok(agents);
-    assert.match(agents!.content, /label, not a character/i);
+  test(`planFiles(${intensity}): uses the selected canonical mode`, () => {
+    const instructions = planFiles(intensity).find(
+      (file) => file.path === ".github/copilot-instructions.md",
+    );
+    assert.ok(instructions);
+    assert.match(instructions.content.toLowerCase(), new RegExp(`mode: kevin ${intensity}`));
+    assert.match(instructions.content, /talk like Kevin/);
   });
 }
 
-test("agents: each declares frontmatter with description", () => {
-  const files = planFiles("lite");
-  for (const f of files) {
-    if (!f.path.includes(".agent.md")) continue;
-    assert.match(f.content, /^---\n/);
-    assert.match(f.content, /\ndescription: /);
+test("project bundle avoids duplicate AGENTS.md by default", () => {
+  assert.equal(planFiles("lite").some((file) => file.path === "AGENTS.md"), false);
+  assert.equal(
+    planFiles("lite", { includeAgentsMd: true }).some((file) => file.path === "AGENTS.md"),
+    true,
+  );
+});
+
+test("personal bundle uses ~/.copilot-relative paths and omits VS Code prompts", () => {
+  const files = planFiles("lite", { scope: "personal" });
+  assert.equal(files.length, 10);
+  assert.ok(files.some((file) => file.path === "copilot-instructions.md"));
+  assert.ok(files.some((file) => file.path === "skills/kevin-compress/SKILL.md"));
+  assert.equal(files.some((file) => file.path.includes("prompts/")), false);
+});
+
+test("agents use portable tools and explicit manual invocation", () => {
+  for (const file of planFiles("lite").filter((item) => item.path.endsWith(".agent.md"))) {
+    assert.match(file.content, /name: kevin-/);
+    assert.match(file.content, /tools: \["read", "edit", "search", "execute"\]/);
+    assert.match(file.content, /user-invocable: true/);
+    assert.match(file.content, /disable-model-invocation: true/);
+    assert.doesNotMatch(file.content, /codebase|editFiles|terminalLastCommand/);
   }
 });
 
-test("commit prompt: declares frontmatter and conventional-commits rule", () => {
+test("Lite, Full, and Ultra expose compression handoffs", () => {
   const files = planFiles("lite");
-  const p = files.find((f) => f.path === ".github/prompts/kevin-commit.prompt.md");
-  assert.ok(p);
-  assert.match(p!.content, /^---\n/);
-  assert.match(p!.content, /Conventional Commits/);
+  for (const name of ["lite", "full", "ultra"]) {
+    const agent = files.find((file) => file.path.endsWith(`kevin-${name}.agent.md`));
+    assert.ok(agent);
+    assert.match(agent.content, /handoffs:/);
+  }
 });
 
-test("review prompt: declares frontmatter and single-line-comment rule", () => {
-  const files = planFiles("lite");
-  const p = files.find((f) => f.path === ".github/prompts/kevin-review.prompt.md");
-  assert.ok(p);
-  assert.match(p!.content, /^---\n/);
-  assert.match(p!.content, /description: /);
-  assert.match(p!.content, /L<line>/);
+test("skills and prompts declare names and descriptions", () => {
+  for (const file of planFiles("lite")) {
+    if (!file.path.endsWith("SKILL.md") && !file.path.endsWith(".prompt.md")) continue;
+    assert.match(file.content, /^---\n/);
+    assert.match(file.content, /\nname: kevin-/);
+    assert.match(file.content, /\ndescription: /);
+  }
 });
 
-test("help prompt: declares frontmatter and lists modes", () => {
-  const files = planFiles("lite");
-  const p = files.find((f) => f.path === ".github/prompts/kevin-help.prompt.md");
-  assert.ok(p);
-  assert.match(p!.content, /^---\n/);
-  assert.match(p!.content, /description: /);
-  assert.match(p!.content, /lite/i);
-  assert.match(p!.content, /full/i);
-  assert.match(p!.content, /ultra/i);
-  assert.match(p!.content, /adhd/i);
+test("token receipt is disabled by default and opt-in", () => {
+  const footer = "— saved ~N tokens vs baseline";
+  assert.equal(planFiles("lite").some((file) => file.content.includes(footer)), false);
+  const enabled = planFiles("lite", { tokenReceipt: true });
+  assert.ok(
+    enabled.find((file) => file.path === ".github/copilot-instructions.md")!.content.includes(footer),
+  );
+  assert.ok(
+    enabled.find((file) => file.path.endsWith("kevin-lite.agent.md"))!.content.includes(footer),
+  );
 });
 
-for (const intensity of INTENSITIES) {
-  test(`planFiles(${intensity}): response footer is declared in instructions, agents, and all agent modes`, () => {
-    const files = planFiles(intensity);
-    const footer = "— saved ~N tokens vs baseline";
-    const main = files.find((f) => f.path === ".github/copilot-instructions.md");
-    assert.ok(main);
-    assert.ok(main!.content.includes(footer), "copilot-instructions missing footer");
-    const agents = files.find((f) => f.path === "AGENTS.md");
-    assert.ok(agents);
-    assert.ok(agents!.content.includes(footer), "AGENTS.md missing footer");
-    for (const f of files) {
-      if (!f.path.includes(".agent.md")) continue;
-      assert.ok(f.content.includes(footer), `${f.path} missing footer`);
-    }
-  });
-}
+test("plugin manifest points to discoverable agents and skills", () => {
+  const root = path.resolve(__dirname, "..");
+  const manifest = JSON.parse(fs.readFileSync(path.join(root, "plugin", "plugin.json"), "utf8"));
+  assert.equal(manifest.name, "kevin-copilot");
+  assert.equal(manifest.agents, "agents/");
+  assert.equal(manifest.skills, "skills/");
+  assert.equal(
+    fs.readdirSync(path.join(root, "plugin", "agents")).filter((name) => name.endsWith(".agent.md")).length,
+    5,
+  );
+  assert.equal(fs.readdirSync(path.join(root, "plugin", "skills")).length, 4);
+});

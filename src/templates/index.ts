@@ -1,15 +1,12 @@
-import { renderCopilotInstructions, type Intensity } from "./copilot-instructions";
+import { renderCopilotInstructions } from "./copilot-instructions";
 import { renderAgentsMd } from "./agents";
-import {
-  chatmodeLite,
-  chatmodeFull,
-  chatmodeUltra,
-  chatmodeAccountant,
-  chatmodeAdhd,
-} from "./chatmodes";
+import { renderAgent } from "./chatmodes";
 import { promptCommit, promptReview, promptHelp } from "./prompts";
+import { skills } from "./skills";
+import type { Intensity, VoiceOptions } from "./voice";
 
 export type { Intensity };
+export type InstallScope = "project" | "personal";
 
 export interface PlannedFile {
   /** Repo-relative POSIX-style path. */
@@ -17,47 +14,45 @@ export interface PlannedFile {
   content: string;
 }
 
-export function planFiles(intensity: Intensity): PlannedFile[] {
-  return [
+export interface PlanOptions extends VoiceOptions {
+  scope?: InstallScope;
+  includeAgentsMd?: boolean;
+}
+
+const intensities: Intensity[] = ["lite", "full", "ultra", "adhd", "accountant"];
+
+export function planFiles(intensity: Intensity, options: PlanOptions = {}): PlannedFile[] {
+  const scope = options.scope ?? "project";
+  const prefix = scope === "project" ? ".github/" : "";
+  const files: PlannedFile[] = [
     {
-      path: "AGENTS.md",
-      content: renderAgentsMd(intensity),
-    },
-    {
-      path: ".github/copilot-instructions.md",
-      content: renderCopilotInstructions(intensity),
-    },
-    {
-      path: ".github/agents/kevin-lite.agent.md",
-      content: chatmodeLite,
-    },
-    {
-      path: ".github/agents/kevin-full.agent.md",
-      content: chatmodeFull,
-    },
-    {
-      path: ".github/agents/kevin-ultra.agent.md",
-      content: chatmodeUltra,
-    },
-    {
-      path: ".github/agents/kevin-accountant.agent.md",
-      content: chatmodeAccountant,
-    },
-    {
-      path: ".github/agents/kevin-adhd.agent.md",
-      content: chatmodeAdhd,
-    },
-    {
-      path: ".github/prompts/kevin-commit.prompt.md",
-      content: promptCommit,
-    },
-    {
-      path: ".github/prompts/kevin-review.prompt.md",
-      content: promptReview,
-    },
-    {
-      path: ".github/prompts/kevin-help.prompt.md",
-      content: promptHelp,
+      path: `${prefix}copilot-instructions.md`,
+      content: renderCopilotInstructions(intensity, options),
     },
   ];
+
+  for (const mode of intensities) {
+    files.push({
+      path: `${prefix}agents/kevin-${mode}.agent.md`,
+      content: renderAgent(mode, options),
+    });
+  }
+
+  for (const [name, content] of Object.entries(skills)) {
+    files.push({ path: `${prefix}skills/${name}/SKILL.md`, content });
+  }
+
+  if (scope === "project") {
+    files.push(
+      { path: ".github/prompts/kevin-commit.prompt.md", content: promptCommit },
+      { path: ".github/prompts/kevin-review.prompt.md", content: promptReview },
+      { path: ".github/prompts/kevin-help.prompt.md", content: promptHelp },
+    );
+  }
+
+  if (options.includeAgentsMd) {
+    files.unshift({ path: "AGENTS.md", content: renderAgentsMd(intensity, options) });
+  }
+
+  return files;
 }

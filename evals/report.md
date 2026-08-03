@@ -1,6 +1,8 @@
 # kevin-copilot eval report
 
-Measured response-token reduction across 10 synthetic-but-representative prompts.
+Offline token counts across 10 hand-authored response fixtures.
+
+> This synthetic benchmark does not run Copilot models or prove instruction compliance, semantic equivalence, latency, or production savings.
 Tokenizer: `gpt-tokenizer` (cl100k_base / GPT-4 family). Representative common denominator across the Copilot backend mix.
 
 ## Per-prompt tokens
@@ -43,7 +45,7 @@ Tokenizer: `gpt-tokenizer` (cl100k_base / GPT-4 family). Representative common d
 - **baseline**: representative default Copilot-style answer (preamble, hedging, closing filler).
 - **generic_terse** (control arm): same answer written terse but without Kevin voice rules — the "just be brief" null hypothesis.
 - **lite / full / ultra**: hand-authored to the voice rules in `.github/copilot-instructions.md`.
-- Correctness-equivalent: each cell preserves the substantive content (exact commands, code, key terms).
+  - Responses are hand-authored fixtures intended to preserve substantive content; semantic equivalence is not automatically judged.
 - Only response tokens counted. Prompt/system-instruction tokens not included.
 
 ## Failure policy

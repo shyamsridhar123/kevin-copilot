@@ -29,7 +29,7 @@ test("resolveInside: accepts valid relative path", () => {
   assert.ok(r.endsWith(path.join(".github", "copilot-instructions.md")));
 });
 
-test("install: writes 10 files into empty dir", async () => {
+test("install: writes 13 project files into empty dir", async () => {
   const dir = await mkTmp();
   try {
     const r = await install({
@@ -40,7 +40,7 @@ test("install: writes 10 files into empty dir", async () => {
       dryRun: false,
       log: () => {},
     });
-    assert.equal(r.written.length, 10);
+    assert.equal(r.written.length, 13);
     for (const rel of r.written) {
       const stat = await fs.stat(path.join(dir, rel));
       assert.ok(stat.isFile());
@@ -55,7 +55,7 @@ test("install: idempotent second run reports all unchanged", async () => {
   try {
     await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, log: () => {} });
     const r = await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, log: () => {} });
-    assert.equal(r.unchanged.length, 10);
+    assert.equal(r.unchanged.length, 13);
     assert.equal(r.written.length, 0);
     assert.equal(r.skipped.length, 0);
   } finally {
@@ -67,11 +67,33 @@ test("install: dry-run touches nothing", async () => {
   const dir = await mkTmp();
   try {
     const r = await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: true, log: () => {} });
-    assert.equal(r.planned.length, 10);
+    assert.equal(r.planned.length, 13);
     const entries = await fs.readdir(dir);
     assert.equal(entries.length, 0);
   } finally {
     await rmDir(dir);
+  }
+});
+
+test("install: personal scope creates Copilot home and writes 10 files", async () => {
+  const parent = await mkTmp();
+  const target = path.join(parent, ".copilot");
+  try {
+    const r = await install({
+      targetDir: target,
+      intensity: "accountant",
+      scope: "personal",
+      force: false,
+      merge: false,
+      dryRun: false,
+      log: () => {},
+    });
+    assert.equal(r.written.length, 10);
+    assert.ok(r.written.includes("copilot-instructions.md"));
+    assert.ok(r.written.includes("skills/kevin-compress/SKILL.md"));
+    assert.equal(r.written.some((file) => file.includes("prompts/")), false);
+  } finally {
+    await rmDir(parent);
   }
 });
 
@@ -86,6 +108,7 @@ test("install: conflict + skip leaves existing file alone", async () => {
       force: false,
       merge: false,
       dryRun: false,
+      includeAgentsMd: true,
       log: () => {},
       resolveConflict: async () => "skip",
     });
@@ -108,6 +131,7 @@ test("install: --force overwrites conflicting file", async () => {
       force: true,
       merge: false,
       dryRun: false,
+      includeAgentsMd: true,
       log: () => {},
     });
     assert.ok(r.written.includes("AGENTS.md"));
@@ -131,6 +155,7 @@ test("install: --merge wraps Kevin section in sentinels and is idempotent", asyn
       force: false,
       merge: true,
       dryRun: false,
+      includeAgentsMd: true,
       log: () => {},
     });
     assert.ok(r1.merged.includes("AGENTS.md"));
@@ -147,6 +172,7 @@ test("install: --merge wraps Kevin section in sentinels and is idempotent", asyn
       force: false,
       merge: true,
       dryRun: false,
+      includeAgentsMd: true,
       log: () => {},
     });
     assert.ok(r2.merged.includes("AGENTS.md") || r2.unchanged.includes("AGENTS.md"));
@@ -172,12 +198,12 @@ test("mergeContent: replaces existing sentinel block", () => {
 
 // ── Uninstall tests ──
 
-test("uninstall: removes all 10 files after clean install", async () => {
+test("uninstall: removes all 13 files after clean install", async () => {
   const dir = await mkTmp();
   try {
     await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, log: () => {} });
     const r = await uninstall({ targetDir: dir, dryRun: false, log: () => {} });
-    assert.equal(r.removed.length, 10);
+    assert.equal(r.removed.length, 13);
     assert.equal(r.skipped.length, 0);
     assert.equal(r.cleaned.length, 0);
     for (const rel of r.removed) {
@@ -194,11 +220,11 @@ test("uninstall: dry-run touches nothing", async () => {
   try {
     await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, log: () => {} });
     const r = await uninstall({ targetDir: dir, dryRun: true, log: () => {} });
-    assert.equal(r.planned.length, 10);
+    assert.equal(r.planned.length, 13);
     assert.equal(r.removed.length, 0);
     // Files still exist.
-    const agents = await fs.stat(path.join(dir, "AGENTS.md"));
-    assert.ok(agents.isFile());
+    const instructions = await fs.stat(path.join(dir, ".github", "copilot-instructions.md"));
+    assert.ok(instructions.isFile());
   } finally {
     await rmDir(dir);
   }
@@ -221,7 +247,7 @@ test("uninstall: removes kevin sentinel block from merged file", async () => {
   try {
     const target = path.join(dir, "AGENTS.md");
     await fs.writeFile(target, "# Project AGENTS\n\nTeam rules here.\n", "utf8");
-    await install({ targetDir: dir, intensity: "lite", force: false, merge: true, dryRun: false, log: () => {} });
+    await install({ targetDir: dir, intensity: "lite", force: false, merge: true, dryRun: false, includeAgentsMd: true, log: () => {} });
 
     const beforeUninstall = await fs.readFile(target, "utf8");
     assert.ok(beforeUninstall.includes(BEGIN_MARKER));
@@ -241,7 +267,7 @@ test("uninstall: removes kevin sentinel block from merged file", async () => {
 test("uninstall: skips customized files", async () => {
   const dir = await mkTmp();
   try {
-    await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, log: () => {} });
+    await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, includeAgentsMd: true, log: () => {} });
     // Modify a file.
     const target = path.join(dir, "AGENTS.md");
     await fs.writeFile(target, "completely custom content\n", "utf8");
@@ -256,12 +282,12 @@ test("uninstall: skips customized files", async () => {
 });
 
 test("uninstall: works for all intensity levels", async () => {
-  for (const intensity of ["lite", "full", "ultra", "adhd"] as const) {
+  for (const intensity of ["lite", "full", "ultra", "adhd", "accountant"] as const) {
     const dir = await mkTmp();
     try {
       await install({ targetDir: dir, intensity, force: false, merge: false, dryRun: false, log: () => {} });
       const r = await uninstall({ targetDir: dir, dryRun: false, log: () => {} });
-      assert.equal(r.removed.length, 10, `intensity=${intensity}: expected 10 removed`);
+      assert.equal(r.removed.length, 13, `intensity=${intensity}: expected 13 removed`);
       assert.equal(r.skipped.length, 0, `intensity=${intensity}: expected 0 skipped`);
     } finally {
       await rmDir(dir);
@@ -313,7 +339,7 @@ test("update: preserves user content when --merge is used", async () => {
     const target = path.join(dir, "AGENTS.md");
     await fs.writeFile(target, "# Team AGENTS\n\nOur custom rules.\n", "utf8");
     // Initial merge install
-    await install({ targetDir: dir, intensity: "lite", force: false, merge: true, dryRun: false, log: () => {} });
+    await install({ targetDir: dir, intensity: "lite", force: false, merge: true, dryRun: false, includeAgentsMd: true, log: () => {} });
     const afterInstall = await fs.readFile(target, "utf8");
     assert.ok(afterInstall.includes("Our custom rules."));
     assert.ok(afterInstall.includes(BEGIN_MARKER));
@@ -324,7 +350,7 @@ test("update: preserves user content when --merge is used", async () => {
     assert.ok(afterUninstall.includes("Our custom rules."));
     assert.ok(!afterUninstall.includes(BEGIN_MARKER));
 
-    await install({ targetDir: dir, intensity: "full", force: false, merge: true, dryRun: false, log: () => {} });
+    await install({ targetDir: dir, intensity: "full", force: false, merge: true, dryRun: false, includeAgentsMd: true, log: () => {} });
     const afterUpdate = await fs.readFile(target, "utf8");
     assert.ok(afterUpdate.includes("Our custom rules."), "user content must survive update --merge");
     assert.ok(afterUpdate.includes(BEGIN_MARKER), "kevin block must be re-added");
@@ -336,13 +362,13 @@ test("update: preserves user content when --merge is used", async () => {
 test("install: CRLF files treated as unchanged", async () => {
   const dir = await mkTmp();
   try {
-    await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, log: () => {} });
+    await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, includeAgentsMd: true, log: () => {} });
     // Convert a file to CRLF
     const target = path.join(dir, "AGENTS.md");
     const content = await fs.readFile(target, "utf8");
     await fs.writeFile(target, content.replace(/\n/g, "\r\n"), "utf8");
 
-    const r = await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, log: () => {} });
+    const r = await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, includeAgentsMd: true, log: () => {} });
     assert.ok(r.unchanged.includes("AGENTS.md"), "CRLF file should be treated as unchanged");
   } finally {
     await rmDir(dir);

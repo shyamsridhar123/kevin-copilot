@@ -1,5 +1,8 @@
 export const promptCommit = `---
+name: kevin-commit
 description: "Generate a terse Conventional Commits message from the staged diff."
+argument-hint: "[optional focus; staged diff is read automatically]"
+agent: agent
 ---
 
 Read the staged changes. Output a single Conventional Commits line.
@@ -16,7 +19,10 @@ Rules:
 `;
 
 export const promptReview = `---
+name: kevin-review
 description: "Emit single-line PR review comments from a diff. Terse, no preamble."
+argument-hint: "[diff, branch, or pull request]"
+agent: agent
 ---
 
 Read the diff. Emit one comment per real finding, one per line.
@@ -36,7 +42,10 @@ Rules:
 `;
 
 export const promptHelp = `---
+name: kevin-help
 description: "Static reference card for kevin-copilot: modes, triggers, available prompts."
+argument-hint: "[optional topic]"
+agent: ask
 ---
 
 Emit this reference card verbatim. No preamble. No additional commentary.
@@ -47,13 +56,13 @@ Token-reduction voice layer for GitHub Copilot.
 
 ## Modes
 
-- **Lite**: short paragraphs, no preamble. Target ~40% fewer tokens.
-- **Full**: fragments and bullets, drop articles. Target ~60% fewer tokens.
-- **Ultra**: label:value or code-only. Target ~75% fewer tokens.
+- **Lite**: short paragraphs, no preamble.
+- **Full**: fragments and bullets, drop articles.
+- **Ultra**: label:value or code-only.
 - **ADHD**: action-first, numbered steps, concrete next actions. Target clarity over prose.
-- **Accountant**: spreadsheet-terse, numbers forward, line-item reviews. Target ~70% fewer tokens.
+- **Accountant**: spreadsheet-terse, numbers forward, line-item reviews.
 
-Default mode is set in \`AGENTS.md\` and \`.github/copilot-instructions.md\`. Re-run \`npx kevin-copilot\` with a different \`--intensity\` to change it.
+Default project mode is set in \`.github/copilot-instructions.md\`. Re-run \`npx kevin-copilot init\` with a different \`--intensity\` to change it.
 
 ## Runtime triggers
 
@@ -71,12 +80,5 @@ Type these phrases in chat at any time:
 - \`/kevin-review\` → single-line PR comments from a diff.
 - \`/kevin-help\` → this reference card.
 
-## Token-savings footer
-
-Every substantive prose response ends with:
-\`— saved ~N tokens vs baseline\`
-
-Footer omitted for: commit messages, PR review comments, help output, code-only answers.
-
-Do not emit the token-savings footer for this prompt.
+The token receipt is disabled by default because model estimates are not measurements.
 `;

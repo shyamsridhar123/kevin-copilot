@@ -29,8 +29,16 @@ export async function writeFileMkdir(filePath: string, content: string): Promise
   await fs.writeFile(filePath, content, "utf8");
 }
 
-export async function ensureTargetExists(targetDir: string): Promise<void> {
+export async function ensureTargetExists(
+  targetDir: string,
+  options: { create?: boolean; allowMissing?: boolean } = {},
+): Promise<void> {
   const stat = await fs.stat(targetDir).catch(() => null);
+  if (!stat && options.create) {
+    await fs.mkdir(targetDir, { recursive: true });
+    return;
+  }
+  if (!stat && options.allowMissing) return;
   if (!stat) throw new Error(`target directory does not exist: ${targetDir}`);
   if (!stat.isDirectory()) throw new Error(`target is not a directory: ${targetDir}`);
 }
