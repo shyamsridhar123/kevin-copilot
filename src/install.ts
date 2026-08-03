@@ -48,7 +48,10 @@ export async function install(params: InstallParams): Promise<InstallResult> {
     log = (line: string) => process.stdout.write(line + "\n"),
   } = params;
 
-  await ensureTargetExists(targetDir);
+  await ensureTargetExists(targetDir, {
+    create: scope === "personal" && !dryRun,
+    allowMissing: scope === "personal" && dryRun,
+  });
 
   const files = planFiles(intensity, { scope, tokenReceipt, includeAgentsMd });
   const result: InstallResult = {
