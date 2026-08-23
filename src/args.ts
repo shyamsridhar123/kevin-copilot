@@ -1,7 +1,7 @@
 import { parseArgs } from "node:util";
 import * as path from "node:path";
 import * as os from "node:os";
-import type { InstallScope, Intensity } from "./templates";
+import { planFiles, type InstallScope, type Intensity } from "./templates";
 
 export interface InitOptions {
   command: "init" | "update";
@@ -133,6 +133,16 @@ export function parse(argv: string[]): ParsedArgs {
   };
 }
 
+/**
+ * The file list in --help, derived from the templates rather than copied. A
+ * hardcoded list goes stale every time a template is added and no test notices.
+ */
+function writtenPaths(): string {
+  return planFiles("lite")
+    .map((file) => `  ${file.path}`)
+    .join("\n");
+}
+
 export const HELP_TEXT = `kevin-copilot — terseness kit for GitHub Copilot.
 Shrinks responses across VS Code Chat, Copilot CLI, cloud agent, and code review.
 
@@ -166,10 +176,5 @@ Flags (uninstall):
   --dry-run            Print planned removals, do not touch disk.
 
 Writes (init / update):
-  .github/copilot-instructions.md
-  .github/agents/kevin-{lite,full,ultra,adhd,accountant}.agent.md
-  .github/skills/kevin-{compress,commit,review,help}/SKILL.md
-  .github/prompts/kevin-commit.prompt.md
-  .github/prompts/kevin-review.prompt.md
-  .github/prompts/kevin-help.prompt.md
+${writtenPaths()}
 `;
