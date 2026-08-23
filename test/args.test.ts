@@ -1,6 +1,14 @@
 import { test } from "node:test";
 import * as assert from "node:assert/strict";
-import { parse } from "../src/args";
+import { parse, HELP_TEXT } from "../src/args";
+import { planFiles } from "../src/templates";
+
+test("help text: lists every file planFiles writes", () => {
+  // Guards against the help list going stale when a template is added.
+  for (const file of planFiles("lite")) {
+    assert.ok(HELP_TEXT.includes(file.path), `HELP_TEXT missing ${file.path}`);
+  }
+});
 
 test("parse: init with defaults", () => {
   const r = parse(["init"]);

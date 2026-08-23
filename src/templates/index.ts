@@ -3,6 +3,7 @@ import { renderAgentsMd } from "./agents";
 import { renderAgent } from "./chatmodes";
 import { promptCommit, promptReview, promptHelp } from "./prompts";
 import { skills } from "./skills";
+import { agentEnlighten, skillEnlighten } from "./enlighten";
 import type { Intensity, VoiceOptions } from "./voice";
 
 export type { Intensity };
@@ -38,9 +39,15 @@ export function planFiles(intensity: Intensity, options: PlanOptions = {}): Plan
     });
   }
 
+  // Not part of `intensities`: Enlighten is not a compression level and must
+  // not be selectable as a repo's default voice.
+  files.push({ path: `${prefix}agents/kevin-enlighten.agent.md`, content: agentEnlighten });
+
   for (const [name, content] of Object.entries(skills)) {
     files.push({ path: `${prefix}skills/${name}/SKILL.md`, content });
   }
+
+  files.push({ path: `${prefix}skills/kevin-enlighten/SKILL.md`, content: skillEnlighten });
 
   if (scope === "project") {
     files.push(

@@ -2,7 +2,7 @@
 
 Portable concise-response customizations for GitHub Copilot.
 
-Kevin provides repository instructions, five manually selected agents, four cross-surface skills, VS Code prompt files, and an installable Copilot plugin.
+Kevin provides repository instructions, six manually selected agents, five cross-surface skills, VS Code prompt files, and an installable Copilot plugin.
 
 ![Kevin compressing a Copilot response](media/kevin.gif)
 
@@ -21,8 +21,8 @@ Project mode writes:
 ```text
 .github/
   copilot-instructions.md
-  agents/kevin-{lite,full,ultra,adhd,accountant}.agent.md
-  skills/kevin-{compress,commit,review,help}/SKILL.md
+  agents/kevin-{lite,full,ultra,adhd,accountant,enlighten}.agent.md
+  skills/kevin-{compress,commit,review,help,enlighten}/SKILL.md
   prompts/kevin-{commit,review,help}.prompt.md
 ```
 
@@ -98,6 +98,14 @@ npx kevin-copilot init --intensity accountant
 
 Voice agents use portable `read`, `edit`, `search`, and `execute` tool aliases. They set `disable-model-invocation: true`, so Copilot will not infer a voice agent from task context; select one explicitly. Lite, Full, and Ultra include VS Code handoffs for changing compression.
 
+### Enlighten, the exception
+
+Every mode above cuts words. `kevin-enlighten` spends them: it produces a self-contained HTML picture explainer for a reader with no background on the topic.
+
+Terseness works when the reader can expand a fragment from context they already have. A beginner cannot, so a fragment costs them a search instead of saving them a read. Enlighten keeps the rest of the voice — no preamble, no closing recap — and drops only the length limit. Few words per idea, not few ideas.
+
+It is deliberately not an `--intensity` value. The intensities are compression levels and one of them becomes a repo's default voice; making Enlighten selectable there would let a repository default to verbose. It ships as an agent and a skill you invoke explicitly, and it never emits a token receipt, because a receipt estimates compression and this mode does not compress.
+
 ## Skills
 
 Agent Skills work in Copilot cloud agent, code review, Copilot CLI, the Copilot app, and supported IDE agent modes.
@@ -106,6 +114,7 @@ Agent Skills work in Copilot cloud agent, code review, Copilot CLI, the Copilot 
 - `kevin-commit` — generate a Conventional Commits message
 - `kevin-review` — emit concise, evidence-backed review findings
 - `kevin-help` — show modes and controls
+- `kevin-enlighten` — explain a topic as an HTML picture explainer (the one verbose skill)
 
 Prompt files remain available in VS Code as `/kevin-commit`, `/kevin-review`, and `/kevin-help`. Other surfaces use the equivalent skills.
 
@@ -155,12 +164,12 @@ What is verified by running this repository:
 
 | Claim | How it is checked | Status |
 |---|---|---|
-| Project install writes 13 files under `.github/` | `kevin-copilot init --target <dir>`, `npm test` | Verified |
-| Personal install writes 10 files under `~/.copilot` and omits prompt files | `kevin-copilot init --scope personal --target <dir>`, `npm test` | Verified |
+| Project install writes 15 files under `.github/` | `kevin-copilot init --target <dir>`, `npm test` | Verified |
+| Personal install writes 12 files under `~/.copilot` and omits prompt files | `kevin-copilot init --scope personal --target <dir>`, `npm test` | Verified |
 | Uninstall removes generated files and empty directories, skips modified files | `kevin-copilot uninstall [--scope personal]`, `npm test` | Verified |
 | Agents are manual-only (`disable-model-invocation: true`) and use portable tools | `npm test` | Verified |
 | Token receipts are off unless `--token-receipt` is passed | `npm test` | Verified |
-| Plugin manifest exposes five agents and four skills | `npm test` | Verified |
+| Plugin manifest exposes six agents and five skills | `npm test` | Verified |
 | Response tokens drop 50–90% on fixtures | `npm run evals` | Verified on synthetic fixtures only |
 | Live Copilot models obey the voice rules | Not automated | Unverified |
 | Latency, semantic equivalence, production token savings | Not automated | Unverified |

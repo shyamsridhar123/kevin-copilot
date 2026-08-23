@@ -8,6 +8,7 @@ const INTENSITIES: Intensity[] = ["lite", "full", "ultra", "adhd", "accountant"]
 const PROJECT_PATHS = [
   ".github/agents/kevin-accountant.agent.md",
   ".github/agents/kevin-adhd.agent.md",
+  ".github/agents/kevin-enlighten.agent.md",
   ".github/agents/kevin-full.agent.md",
   ".github/agents/kevin-lite.agent.md",
   ".github/agents/kevin-ultra.agent.md",
@@ -17,6 +18,7 @@ const PROJECT_PATHS = [
   ".github/prompts/kevin-review.prompt.md",
   ".github/skills/kevin-commit/SKILL.md",
   ".github/skills/kevin-compress/SKILL.md",
+  ".github/skills/kevin-enlighten/SKILL.md",
   ".github/skills/kevin-help/SKILL.md",
   ".github/skills/kevin-review/SKILL.md",
 ];
@@ -46,7 +48,7 @@ test("project bundle avoids duplicate AGENTS.md by default", () => {
 
 test("personal bundle uses ~/.copilot-relative paths and omits VS Code prompts", () => {
   const files = planFiles("lite", { scope: "personal" });
-  assert.equal(files.length, 10);
+  assert.equal(files.length, 12);
   assert.ok(files.some((file) => file.path === "copilot-instructions.md"));
   assert.ok(files.some((file) => file.path === "skills/kevin-compress/SKILL.md"));
   assert.equal(files.some((file) => file.path.includes("prompts/")), false);
@@ -92,6 +94,37 @@ test("token receipt is disabled by default and opt-in", () => {
   );
 });
 
+test("enlighten is not a selectable intensity", () => {
+  // It is not a compression level, so it must not become a repo's default voice.
+  const instructions = planFiles("lite").find(
+    (file) => file.path === ".github/copilot-instructions.md",
+  );
+  assert.ok(instructions);
+  assert.doesNotMatch(instructions.content, /enlighten/i);
+});
+
+test("enlighten ships as both an agent and a skill, from one doctrine", () => {
+  const files = planFiles("lite");
+  const agent = files.find((f) => f.path === ".github/agents/kevin-enlighten.agent.md");
+  const skill = files.find((f) => f.path === ".github/skills/kevin-enlighten/SKILL.md");
+  assert.ok(agent);
+  assert.ok(skill);
+  for (const file of [agent, skill]) {
+    // The layout rule that this mode exists to enforce.
+    assert.match(file.content, /Never put `<text>` inside SVG/);
+    assert.match(file.content, /flexbox/);
+    // It does not compress, so a compression receipt would be a false number.
+    assert.match(file.content, /Do not add a token receipt/);
+  }
+});
+
+test("enlighten opts out of the token receipt even when it is enabled", () => {
+  const files = planFiles("lite", { tokenReceipt: true });
+  const agent = files.find((f) => f.path === ".github/agents/kevin-enlighten.agent.md");
+  assert.ok(agent);
+  assert.doesNotMatch(agent.content, /— saved ~N tokens vs baseline/);
+});
+
 test("plugin manifest points to discoverable agents and skills", () => {
   const root = path.resolve(__dirname, "..");
   const manifest = JSON.parse(fs.readFileSync(path.join(root, "plugin", "plugin.json"), "utf8"));
@@ -100,7 +133,19 @@ test("plugin manifest points to discoverable agents and skills", () => {
   assert.equal(manifest.skills, "skills/");
   assert.equal(
     fs.readdirSync(path.join(root, "plugin", "agents")).filter((name) => name.endsWith(".agent.md")).length,
-    5,
+    6,
   );
-  assert.equal(fs.readdirSync(path.join(root, "plugin", "skills")).length, 4);
+  assert.equal(fs.readdirSync(path.join(root, "plugin", "skills")).length, 5);
+});
+
+test("plugin mirrors carry the enlighten layout rule", () => {
+  const root = path.resolve(__dirname, "..");
+  for (const rel of [
+    ["plugin", "agents", "kevin-enlighten.agent.md"],
+    ["plugin", "skills", "kevin-enlighten", "SKILL.md"],
+  ]) {
+    const body = fs.readFileSync(path.join(root, ...rel), "utf8");
+    assert.match(body, /Never put `<text>` inside SVG/);
+    assert.match(body, /Do not add a token receipt/);
+  }
 });
