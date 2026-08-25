@@ -121,9 +121,26 @@ Prompt files remain available in VS Code as `/kevin-commit`, `/kevin-review`, an
 
 ### Merit, the other exception
 
-`kevin-merit` runs the same review as `kevin-review` and then wraps the findings in a corporate merit cycle: a band, an allotted increase, and one flat sentence of calibration. Outstanding is defined and never awarded.
+`kevin-merit` runs the same review as `kevin-review`, audits the diff for over-engineering, and wraps the result in a corporate merit cycle: a band, an allotted increase, and one flat sentence of calibration. Outstanding is defined and never awarded.
 
-The findings stay real. The band cannot be justified by inventing one, and it is derived from `git diff --numstat` rather than from an impression of the diff — clearing Meets requires deletions to outnumber additions, which makes the ceremony reward removal rather than volume. The subject is always a change. The skill refuses to score a contributor, an author, or a commit history, because a performance rating pointed at a person is not a joke that a tool gets to make.
+The audit works off a cost-approval ladder. Every line added is a line the repo funds forever, so new code has to clear the cheapest tier that could have delivered it:
+
+| Tier | Cheaper option |
+|---:|---|
+| 1 | Nothing — the requirement does not exist |
+| 2 | Prior art already in this repo |
+| 3 | The standard library |
+| 4 | The runtime, browser, or OS |
+| 5 | A dependency already in the manifest |
+| 6 | New code, smallest version that passes |
+
+A new dependency is not a tier; it is a request, and the skill never approves one. Code that stopped at tier 6 when a lower tier would have worked is reported as `UNFUNDED SCOPE` — shipped, unbudgeted, permanent — and the finding must name the specific stdlib call or existing function it should have used. If it cannot name one, there is no finding.
+
+The ladder is wired to the money rather than left as advice: any unfunded scope caps the band at Meets Expectations regardless of line count, and Exceeds requires both a clean scope and deletions outnumbering additions. The only way to be paid above the floor is to remove code and add nothing that already existed.
+
+Two limits on it. The ladder judges the solution, never the effort of understanding the problem — the skill reads the code a change touches before assigning a tier. And the safety floor outranks cheapness: trust-boundary validation, data-loss handling, security controls, and accessibility affordances are funded at every tier and can never be charged as unfunded scope.
+
+The findings stay real. The band cannot be justified by inventing one, and the line counts come from `git diff --numstat` rather than an impression of the diff. The subject is always a change. The skill refuses to score a contributor, an author, or a commit history, because a performance rating pointed at a person is not a joke that a tool gets to make.
 
 ## CLI
 
@@ -155,9 +172,9 @@ Keep the repository-wide voice in `.github/copilot-instructions.md`; path-specif
 
 ## Composing with other tools
 
-Kevin shapes what the agent *says*. It does not shape what the agent *builds* — a response can be four words long and still describe a 300-line class nobody needed.
+Kevin's voice shapes what the agent *says*. A response can be four words long and still describe a 300-line class nobody needed, so `kevin-merit` audits the other half — but only after the code exists.
 
-[ponytail](https://github.com/DietrichGebert/ponytail) covers that half: an always-on ruleset that walks a "does this need to exist → is it already here → stdlib → native platform feature" ladder before writing code. The two do not overlap; ponytail leaves prose alone and Kevin leaves code alone, and ponytail installs into Copilot CLI alongside Kevin. Run both if you want terse answers about small diffs.
+[ponytail](https://github.com/DietrichGebert/ponytail) covers the same concern at the other end: an always-on ruleset that walks a "does this need to exist → is it already here → stdlib → native platform feature" ladder *before* writing code. The two are complementary rather than redundant — ponytail prevents the line, merit charges for it — and ponytail installs into Copilot CLI alongside Kevin. Run both if you want terse answers about small diffs.
 
 Kevin borrows one rule from it outright: compression is never allowed to remove trust-boundary validation, data-loss handling, security controls, or accessibility affordances. Terse, not negligent.
 

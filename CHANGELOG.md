@@ -5,7 +5,8 @@
 ### Added
 - **`kevin-merit` skill** — runs the `kevin-review` pass, then reports the findings as a corporate merit cycle (band, allotted increase, one line of calibration). Outstanding is defined and never awarded. The band is derived from `git diff --numstat`, so Exceeds requires deletions to outnumber additions. It scores a change, never a person, and refuses to run against a contributor or a commit history.
 - **Kevin Enlighten** — the one verbose mode, shipped as an agent and a skill. Produces a self-contained HTML picture explainer. Not an `--intensity`, and never emits a token receipt.
-- *Composing with other tools* section in the README, covering [ponytail](https://github.com/DietrichGebert/ponytail): it shrinks what an agent builds, Kevin shrinks what it says, and the two install side by side.
+- **Cost-approval tiers in `kevin-merit`** — new code must clear the cheapest tier that could have delivered it (nothing → prior art → stdlib → runtime/browser/OS → an already-approved dependency → new code). A new dependency is not a tier and is never approved. Code that skipped a cheaper tier is reported as `UNFUNDED SCOPE` and must name the specific alternative. Any unfunded scope caps the band at Meets Expectations. Trust-boundary validation, data-loss handling, security controls, and accessibility affordances are funded at every tier and can never be charged.
+- *Composing with other tools* section in the README, covering [ponytail](https://github.com/DietrichGebert/ponytail): it prevents the unnecessary line at write time, `kevin-merit` charges for it at review time, and the two install side by side.
 
 ### Changed
 - The non-negotiable voice block now names what compression may never drop — trust-boundary validation, data-loss handling, security controls, accessibility affordances — instead of leaving "required safety warnings" to the model's judgement. Adopted from ponytail.

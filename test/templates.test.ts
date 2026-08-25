@@ -144,6 +144,28 @@ test("merit scores a diff, never a person", () => {
   }
 });
 
+test("merit charges over-engineering through the cost-approval tiers", () => {
+  const files = planFiles("lite");
+  const skill = files.find((f) => f.path === ".github/skills/kevin-merit/SKILL.md");
+  const mirror = fs.readFileSync(
+    path.join(__dirname, "..", "plugin", "skills", "kevin-merit", "SKILL.md"),
+    "utf8",
+  );
+  assert.ok(skill);
+  for (const body of [skill.content, mirror]) {
+    // Every tier below "write new code" must be reachable, or the ladder is decoration.
+    for (const tier of [/standard library/i, /runtime, browser, or OS/i, /manifest/i]) {
+      assert.match(body, tier);
+    }
+    // A new dependency is the one escape hatch the ladder must not offer.
+    assert.match(body, /new dependency is not a tier/i);
+    // The ladder has to move the band, otherwise it is advice the skill can ignore.
+    assert.match(body, /caps the band at Meets/i);
+    // The safety floor outranks the ladder; cheapness never deletes these.
+    assert.match(body, /accessibility affordances/);
+  }
+});
+
 test("plugin manifest points to discoverable agents and skills", () => {
   const root = path.resolve(__dirname, "..");
   const manifest = JSON.parse(fs.readFileSync(path.join(root, "plugin", "plugin.json"), "utf8"));
