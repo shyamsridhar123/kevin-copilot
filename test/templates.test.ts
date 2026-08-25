@@ -95,6 +95,28 @@ test("token receipt is disabled by default and opt-in", () => {
   );
 });
 
+test("the cost ladder is always on, not just when merit is invoked", () => {
+  // A skill only runs when asked. If the ladder lives solely in kevin-merit, the
+  // agent still writes the 300-line class and merit only bills for it afterwards.
+  for (const intensity of INTENSITIES) {
+    const instructions = planFiles(intensity).find(
+      (file) => file.path === ".github/copilot-instructions.md",
+    );
+    assert.ok(instructions);
+    assert.match(instructions.content, /standard library/);
+    assert.match(instructions.content, /Never add a dependency on your own/);
+    assert.match(instructions.content, /Deleting code is a valid answer/);
+  }
+  // The plugin agents carry it too, or plugin users get the prose half only.
+  for (const agent of ["lite", "full", "ultra", "adhd", "accountant"]) {
+    const mirror = fs.readFileSync(
+      path.join(__dirname, "..", "plugin", "agents", `kevin-${agent}.agent.md`),
+      "utf8",
+    );
+    assert.match(mirror, /Deleting code is a valid answer/);
+  }
+});
+
 test("enlighten is not a selectable intensity", () => {
   // It is not a compression level, so it must not become a repo's default voice.
   const instructions = planFiles("lite").find(

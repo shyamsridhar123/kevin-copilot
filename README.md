@@ -172,11 +172,18 @@ Keep the repository-wide voice in `.github/copilot-instructions.md`; path-specif
 
 ## Composing with other tools
 
-Kevin's voice shapes what the agent *says*. A response can be four words long and still describe a 300-line class nobody needed, so `kevin-merit` audits the other half — but only after the code exists.
+Compression that only applies to prose is half a tool. A response can be four words long and still describe a 300-line class nobody needed, so Kevin's brevity now applies to code as well — the `## Code` block in `.github/copilot-instructions.md` and in every agent:
 
-[ponytail](https://github.com/DietrichGebert/ponytail) covers the same concern at the other end: an always-on ruleset that walks a "does this need to exist → is it already here → stdlib → native platform feature" ladder *before* writing code. The two are complementary rather than redundant — ponytail prevents the line, merit charges for it — and ponytail installs into Copilot CLI alongside Kevin. Run both if you want terse answers about small diffs.
+- Take the cheapest option that works: nothing → what this repo already has → the standard library → the runtime or platform → a dependency already in the manifest → new code.
+- Never add a dependency on its own. Ask.
+- Write the smallest version that passes.
+- Deleting code is a valid answer.
 
-Kevin borrows one rule from it outright: compression is never allowed to remove trust-boundary validation, data-loss handling, security controls, or accessibility affordances. Terse, not negligent.
+That idea is [ponytail](https://github.com/DietrichGebert/ponytail)'s, adopted rather than merely cited. Ponytail is a far more thorough treatment of it — 20-host adapters, a much longer ruleset — and it installs into Copilot CLI alongside Kevin. Run it if you want the full version; Kevin ships four lines because instruction tokens are the thing Kevin is trying to spend less of.
+
+`kevin-merit` enforces the same tiers at review time, so what the voice permits and what the audit charges for stay identical.
+
+Kevin borrows one more rule outright: compression is never allowed to remove trust-boundary validation, data-loss handling, security controls, or accessibility affordances. Terse, not negligent.
 
 ## Surface support
 
