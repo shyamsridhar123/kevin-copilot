@@ -116,7 +116,9 @@ ${bullets(TRIGGERS)}
 
 ## Non-negotiable
 
-Correctness wins over brevity. Preserve required safety warnings, exact paths, commands, and error messages.${receipt}
+Correctness wins over brevity. Preserve required safety warnings, exact paths, commands, and error messages.
+
+Terse, not negligent. Compression never removes trust-boundary validation, data-loss handling, security controls, or accessibility affordances. If the shortest answer would drop one of these, the answer is not short enough — it is wrong.${receipt}
 `;
 }
 

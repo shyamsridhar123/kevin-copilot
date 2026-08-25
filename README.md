@@ -22,7 +22,7 @@ Project mode writes:
 .github/
   copilot-instructions.md
   agents/kevin-{lite,full,ultra,adhd,accountant,enlighten}.agent.md
-  skills/kevin-{compress,commit,review,help,enlighten}/SKILL.md
+  skills/kevin-{compress,commit,review,merit,help,enlighten}/SKILL.md
   prompts/kevin-{commit,review,help}.prompt.md
 ```
 
@@ -113,10 +113,17 @@ Agent Skills work in Copilot cloud agent, code review, Copilot CLI, the Copilot 
 - `kevin-compress` — compress an answer without dropping required details
 - `kevin-commit` — generate a Conventional Commits message
 - `kevin-review` — emit concise, evidence-backed review findings
+- `kevin-merit` — the same findings, delivered as a corporate merit cycle
 - `kevin-help` — show modes and controls
 - `kevin-enlighten` — explain a topic as an HTML picture explainer (the one verbose skill)
 
 Prompt files remain available in VS Code as `/kevin-commit`, `/kevin-review`, and `/kevin-help`. Other surfaces use the equivalent skills.
+
+### Merit, the other exception
+
+`kevin-merit` runs the same review as `kevin-review` and then wraps the findings in a corporate merit cycle: a band, an allotted increase, and one flat sentence of calibration. Outstanding is defined and never awarded.
+
+The findings stay real. The band cannot be justified by inventing one, and a higher band requires a net line reduction the diff actually shows — which makes the ceremony reward deletion rather than volume. The subject is always a change. The skill refuses to score a contributor, an author, or a commit history, because a performance rating pointed at a person is not a joke that a tool gets to make.
 
 ## CLI
 
@@ -146,6 +153,14 @@ Use Kevin Lite output. Preserve explanations needed by documentation readers.
 
 Keep the repository-wide voice in `.github/copilot-instructions.md`; path-specific files should contain only the delta.
 
+## Composing with other tools
+
+Kevin shapes what the agent *says*. It does not shape what the agent *builds* — a response can be four words long and still describe a 300-line class nobody needed.
+
+[ponytail](https://github.com/DietrichGebert/ponytail) covers that half: an always-on ruleset that walks a "does this need to exist → is it already here → stdlib → native platform feature" ladder before writing code. The two do not overlap; ponytail leaves prose alone and Kevin leaves code alone, and ponytail installs into Copilot CLI alongside Kevin. Run both if you want terse answers about small diffs.
+
+Kevin borrows one rule from it outright: compression is never allowed to remove trust-boundary validation, data-loss handling, security controls, or accessibility affordances. Terse, not negligent.
+
 ## Surface support
 
 | Asset | VS Code | Copilot CLI | GitHub.com/cloud |
@@ -164,12 +179,12 @@ What is verified by running this repository:
 
 | Claim | How it is checked | Status |
 |---|---|---|
-| Project install writes 15 files under `.github/` | `kevin-copilot init --target <dir>`, `npm test` | Verified |
-| Personal install writes 12 files under `~/.copilot` and omits prompt files | `kevin-copilot init --scope personal --target <dir>`, `npm test` | Verified |
+| Project install writes 16 files under `.github/` | `kevin-copilot init --target <dir>`, `npm test` | Verified |
+| Personal install writes 13 files under `~/.copilot` and omits prompt files | `kevin-copilot init --scope personal --target <dir>`, `npm test` | Verified |
 | Uninstall removes generated files and empty directories, skips modified files | `kevin-copilot uninstall [--scope personal]`, `npm test` | Verified |
 | Agents are manual-only (`disable-model-invocation: true`) and use portable tools | `npm test` | Verified |
 | Token receipts are off unless `--token-receipt` is passed | `npm test` | Verified |
-| Plugin manifest exposes six agents and five skills | `npm test` | Verified |
+| Plugin manifest exposes six agents and six skills | `npm test` | Verified |
 | Response tokens drop 50–90% on fixtures | `npm run evals` | Verified on synthetic fixtures only |
 | Live Copilot models obey the voice rules | Not automated | Unverified |
 | Latency, semantic equivalence, production token savings | Not automated | Unverified |

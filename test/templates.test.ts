@@ -20,6 +20,7 @@ const PROJECT_PATHS = [
   ".github/skills/kevin-compress/SKILL.md",
   ".github/skills/kevin-enlighten/SKILL.md",
   ".github/skills/kevin-help/SKILL.md",
+  ".github/skills/kevin-merit/SKILL.md",
   ".github/skills/kevin-review/SKILL.md",
 ];
 
@@ -48,7 +49,7 @@ test("project bundle avoids duplicate AGENTS.md by default", () => {
 
 test("personal bundle uses ~/.copilot-relative paths and omits VS Code prompts", () => {
   const files = planFiles("lite", { scope: "personal" });
-  assert.equal(files.length, 12);
+  assert.equal(files.length, 13);
   assert.ok(files.some((file) => file.path === "copilot-instructions.md"));
   assert.ok(files.some((file) => file.path === "skills/kevin-compress/SKILL.md"));
   assert.equal(files.some((file) => file.path.includes("prompts/")), false);
@@ -125,6 +126,21 @@ test("enlighten opts out of the token receipt even when it is enabled", () => {
   assert.doesNotMatch(agent.content, /— saved ~N tokens vs baseline/);
 });
 
+test("merit scores a diff, never a person", () => {
+  // The satire targets the ceremony; pointing it at a human is the failure mode.
+  const files = planFiles("lite");
+  const skill = files.find((f) => f.path === ".github/skills/kevin-merit/SKILL.md");
+  const mirror = fs.readFileSync(
+    path.join(__dirname, "..", "plugin", "skills", "kevin-merit", "SKILL.md"),
+    "utf8",
+  );
+  assert.ok(skill);
+  for (const body of [skill.content, mirror]) {
+    assert.match(body, /scores a change, not a person/);
+    assert.match(body, /refuse to run it against a contributor/i);
+  }
+});
+
 test("plugin manifest points to discoverable agents and skills", () => {
   const root = path.resolve(__dirname, "..");
   const manifest = JSON.parse(fs.readFileSync(path.join(root, "plugin", "plugin.json"), "utf8"));
@@ -135,7 +151,7 @@ test("plugin manifest points to discoverable agents and skills", () => {
     fs.readdirSync(path.join(root, "plugin", "agents")).filter((name) => name.endsWith(".agent.md")).length,
     6,
   );
-  assert.equal(fs.readdirSync(path.join(root, "plugin", "skills")).length, 5);
+  assert.equal(fs.readdirSync(path.join(root, "plugin", "skills")).length, 6);
 });
 
 test("plugin mirrors carry the enlighten layout rule", () => {
