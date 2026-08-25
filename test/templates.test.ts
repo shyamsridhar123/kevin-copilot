@@ -138,6 +138,9 @@ test("merit scores a diff, never a person", () => {
   for (const body of [skill.content, mirror]) {
     assert.match(body, /scores a change, not a person/);
     assert.match(body, /refuse to run it against a contributor/i);
+    // The band is derived from counted lines, not from an impression of the diff.
+    assert.match(body, /git diff --numstat/);
+    assert.match(body, /deletions > additions/);
   }
 });
 

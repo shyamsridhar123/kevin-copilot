@@ -123,7 +123,7 @@ Prompt files remain available in VS Code as `/kevin-commit`, `/kevin-review`, an
 
 `kevin-merit` runs the same review as `kevin-review` and then wraps the findings in a corporate merit cycle: a band, an allotted increase, and one flat sentence of calibration. Outstanding is defined and never awarded.
 
-The findings stay real. The band cannot be justified by inventing one, and a higher band requires a net line reduction the diff actually shows — which makes the ceremony reward deletion rather than volume. The subject is always a change. The skill refuses to score a contributor, an author, or a commit history, because a performance rating pointed at a person is not a joke that a tool gets to make.
+The findings stay real. The band cannot be justified by inventing one, and it is derived from `git diff --numstat` rather than from an impression of the diff — clearing Meets requires deletions to outnumber additions, which makes the ceremony reward removal rather than volume. The subject is always a change. The skill refuses to score a contributor, an author, or a commit history, because a performance rating pointed at a person is not a joke that a tool gets to make.
 
 ## CLI
 

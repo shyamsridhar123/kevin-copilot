@@ -56,10 +56,13 @@ argument-hint: "[diff, branch, or pull request]"
 
 Review the requested diff, then report it as a merit-increase decision. The findings are real; the ceremony around them is the joke. Never invent a finding to justify a band.
 
+Get the line counts from \`git diff --numstat <target>\` and sum them. The band follows from those numbers, not from an impression of the diff.
+
 Output exactly:
 
 \`\`\`text
 CYCLE: <branch or diff label>
+NET: +<additions> -<deletions>
 BAND: <band>
 MERIT INCREASE: <allotted percent>
 CALIBRATION: <one sentence on why the band held>
@@ -71,10 +74,10 @@ L<line>: <kind>: <issue>. <fix>.
 |---|---|---|
 | Does Not Meet | 0.0% | Broken, unsafe, or ships nothing. |
 | Meets Expectations | 2.1% | It works. This is most diffs. |
-| Exceeds Expectations | 3.4% | It works and removes more than it adds. |
+| Exceeds Expectations | 3.4% | It works and deletions exceed additions. |
 | Outstanding | 3.4% | Reserved. Budget was allocated elsewhere. |
 
-- Default to Meets Expectations. A higher band needs a net line reduction visible in the diff.
+- Default to Meets Expectations. Exceeds requires \`deletions > additions\` in the reported \`NET\` line.
 - Outstanding pays the Exceeds rate. State that in one line and do not explain it.
 - Line items reuse the \`kevin-review\` format and kinds. Omit the section when there are none.
 - Keep calibration to one flat corporate sentence. Never reference people, employers, shows, or real companies.

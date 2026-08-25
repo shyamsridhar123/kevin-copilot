@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- **`kevin-merit` skill** — runs the `kevin-review` pass, then reports the findings as a corporate merit cycle (band, allotted increase, one line of calibration). Outstanding is defined and never awarded. The band is derived from `git diff --numstat`, so Exceeds requires deletions to outnumber additions. It scores a change, never a person, and refuses to run against a contributor or a commit history.
+- **Kevin Enlighten** — the one verbose mode, shipped as an agent and a skill. Produces a self-contained HTML picture explainer. Not an `--intensity`, and never emits a token receipt.
+- *Composing with other tools* section in the README, covering [ponytail](https://github.com/DietrichGebert/ponytail): it shrinks what an agent builds, Kevin shrinks what it says, and the two install side by side.
+
+### Changed
+- The non-negotiable voice block now names what compression may never drop — trust-boundary validation, data-loss handling, security controls, accessibility affordances — instead of leaving "required safety warnings" to the model's judgement. Adopted from ponytail.
+- `init` now writes 16 project files (was 15) and 13 personal files (was 12).
+
 ## 0.4.0
 
 - Added project and personal installation scopes.
