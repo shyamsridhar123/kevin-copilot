@@ -78,6 +78,9 @@ function main() {
 // and bumps their confidence + observation count.
 function updateInstinctConfidence() {
   const instinctFile = path.join(ATV_DIR, "instincts", "project.yaml");
+  const instinctDir = path.dirname(instinctFile);
+  const paths = [instinctDir, instinctFile, OBS_FILE];
+  if (paths.some((item) => fs.lstatSync(item, { throwIfNoEntry: false })?.isSymbolicLink())) return;
   if (!fs.existsSync(instinctFile) || !fs.existsSync(OBS_FILE)) return;
 
   try {

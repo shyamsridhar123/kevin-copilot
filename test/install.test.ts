@@ -3,9 +3,11 @@ import * as assert from "node:assert/strict";
 import * as path from "node:path";
 import * as os from "node:os";
 import * as fs from "node:fs/promises";
+import { spawnSync } from "node:child_process";
 import { resolveInside } from "../src/fs";
 import { install } from "../src/install";
 import { uninstall } from "../src/uninstall";
+import { update } from "../src/update";
 import { mergeContent, BEGIN_MARKER, END_MARKER } from "../src/conflict";
 
 async function mkTmp(): Promise<string> {
@@ -309,7 +311,7 @@ test("uninstall: cleans up empty directories", async () => {
   }
 });
 
-test("uninstall: removes legacy .chatmode.md files", async () => {
+test("uninstall: skips unrecognized legacy .chatmode.md files", async () => {
   const dir = await mkTmp();
   try {
     // Simulate an old install that wrote .chatmode.md files.
@@ -320,12 +322,44 @@ test("uninstall: removes legacy .chatmode.md files", async () => {
     await fs.writeFile(path.join(chatmodesDir, "kevin-ultra.chatmode.md"), "old chatmode", "utf8");
 
     const r = await uninstall({ targetDir: dir, dryRun: false, log: () => {} });
-    assert.ok(r.removed.includes(".github/chatmodes/kevin-lite.chatmode.md"));
-    assert.ok(r.removed.includes(".github/chatmodes/kevin-full.chatmode.md"));
-    assert.ok(r.removed.includes(".github/chatmodes/kevin-ultra.chatmode.md"));
+    assert.ok(r.skipped.includes(".github/chatmodes/kevin-lite.chatmode.md"));
+    assert.ok(r.skipped.includes(".github/chatmodes/kevin-full.chatmode.md"));
+    assert.ok(r.skipped.includes(".github/chatmodes/kevin-ultra.chatmode.md"));
 
     const chatmodesExists = await fs.stat(chatmodesDir).catch(() => null);
-    assert.equal(chatmodesExists, null, ".github/chatmodes should be removed");
+    assert.ok(chatmodesExists?.isDirectory(), ".github/chatmodes should be preserved");
+  } finally {
+    await rmDir(dir);
+  }
+});
+
+const LEGACY_LITE = `---
+description: "Kevin Lite — terse Copilot Chat. Short paragraphs, no preamble, code leads."
+---
+
+# Kevin Lite
+
+- No preamble. No "Sure", "Here is", "Let me".
+- No closing filler. No "Hope that helps".
+- Short paragraphs. One idea per paragraph.
+- Code blocks stand alone. Prose only if the user asked "why".
+- Target length: under 120 words of prose for typical questions.
+- Plain declarative sentences. Cut hedging.
+- Never restate the question.
+- End substantive prose responses with: \`— saved ~N tokens vs baseline\`. Omit for commit messages, PR review comments, help output, and code-only answers.
+
+Correctness wins. Keep exact paths, commands, error messages, and safety warnings.
+`;
+
+test("uninstall: removes recognized legacy content", async () => {
+  const dir = await mkTmp();
+  try {
+    const target = path.join(dir, ".github", "chatmodes", "kevin-lite.chatmode.md");
+    await fs.mkdir(path.dirname(target), { recursive: true });
+    await fs.writeFile(target, LEGACY_LITE, "utf8");
+    const r = await uninstall({ targetDir: dir, dryRun: false, log: () => {} });
+    assert.ok(r.removed.includes(".github/chatmodes/kevin-lite.chatmode.md"));
+    assert.equal(await fs.stat(target).catch(() => null), null);
   } finally {
     await rmDir(dir);
   }
@@ -370,6 +404,104 @@ test("install: CRLF files treated as unchanged", async () => {
 
     const r = await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, includeAgentsMd: true, log: () => {} });
     assert.ok(r.unchanged.includes("AGENTS.md"), "CRLF file should be treated as unchanged");
+  } finally {
+    await rmDir(dir);
+  }
+});
+
+test("install: rejects symlinked parent directories", async () => {
+  const dir = await mkTmp();
+  const outside = await mkTmp();
+  try {
+    await fs.symlink(outside, path.join(dir, ".github"), "dir");
+    await assert.rejects(
+      install({ targetDir: dir, intensity: "lite", force: true, merge: false, dryRun: false, log: () => {} }),
+      /symlink/,
+    );
+    assert.equal(await fs.stat(path.join(outside, "copilot-instructions.md")).catch(() => null), null);
+  } finally {
+    await rmDir(dir);
+    await rmDir(outside);
+  }
+});
+
+test("install: rejects leaf symlinks without changing their targets", async () => {
+  const dir = await mkTmp();
+  const outside = await mkTmp();
+  try {
+    const victim = path.join(outside, "victim.md");
+    await fs.writeFile(victim, "keep me\n", "utf8");
+    await fs.mkdir(path.join(dir, ".github"), { recursive: true });
+    await fs.symlink(victim, path.join(dir, ".github", "copilot-instructions.md"));
+    await assert.rejects(
+      install({ targetDir: dir, intensity: "lite", force: true, merge: false, dryRun: false, log: () => {} }),
+      /symlink/,
+    );
+    assert.equal(await fs.readFile(victim, "utf8"), "keep me\n");
+  } finally {
+    await rmDir(dir);
+    await rmDir(outside);
+  }
+});
+
+test("update: restores every managed file when installation aborts", async () => {
+  const dir = await mkTmp();
+  try {
+    await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, log: () => {} });
+    const custom = path.join(dir, ".github", "agents", "kevin-lite.agent.md");
+    await fs.writeFile(custom, "custom agent\n", "utf8");
+    const instructions = path.join(dir, ".github", "copilot-instructions.md");
+    const before = await fs.readFile(instructions, "utf8");
+
+    await assert.rejects(
+      update({
+        targetDir: dir,
+        intensity: "full",
+        merge: true,
+        dryRun: false,
+        resolveConflict: async () => "quit",
+        log: () => {},
+      }),
+      /aborted/,
+    );
+
+    assert.equal(await fs.readFile(instructions, "utf8"), before);
+    assert.equal(await fs.readFile(custom, "utf8"), "custom agent\n");
+  } finally {
+    await rmDir(dir);
+  }
+});
+
+test("observer stores private metadata without tool payloads", async () => {
+  const dir = await mkTmp();
+  try {
+    const script = path.resolve(__dirname, "..", ".github", "hooks", "scripts", "observe.js");
+    const payload = JSON.stringify({
+      toolName: "execute",
+      toolArgs: "TOKEN=secret-value",
+      toolResult: "private output",
+      cwd: "/sensitive/path",
+      success: true,
+    });
+    const run = spawnSync(process.execPath, [script, "postToolUse"], {
+      cwd: dir,
+      input: payload,
+      encoding: "utf8",
+    });
+    assert.equal(run.status, 0, run.stderr);
+
+    const observations = path.join(dir, ".atv", "observations.jsonl");
+    const body = await fs.readFile(observations, "utf8");
+    assert.doesNotMatch(body, /secret-value|private output|sensitive/);
+    assert.deepEqual(JSON.parse(body), {
+      ts: JSON.parse(body).ts,
+      hook: "postToolUse",
+      tool: "execute",
+      success: true,
+    });
+    if (process.platform !== "win32") {
+      assert.equal((await fs.stat(observations)).mode & 0o777, 0o600);
+    }
   } finally {
     await rmDir(dir);
   }

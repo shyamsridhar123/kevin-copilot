@@ -197,6 +197,11 @@ The Copilot app consumes the same repository and plugin customizations. Kevin do
 
 ## Verification status
 
+Repository observer hooks retain timestamps, hook names, tool names, and success
+status only. They never persist tool arguments, results, errors, or working
+directories. Local `.atv` logs use owner-only permissions and remain gitignored;
+delete that directory whenever local learning history is no longer needed.
+
 What is verified by running this repository:
 
 | Claim | How it is checked | Status |

@@ -1,6 +1,7 @@
 import * as path from "node:path";
 import * as fs from "node:fs/promises";
 import { constants } from "node:fs";
+import type { Stats } from "node:fs";
 import { randomUUID } from "node:crypto";
 
 /**
@@ -50,7 +51,7 @@ async function safePath(targetDir: string, filePath: string): Promise<string> {
   return path.join(realTarget, rel);
 }
 
-async function rejectLeafSymlink(filePath: string): Promise<void> {
+async function rejectLeafSymlink(filePath: string): Promise<Stats | null> {
   const stat = await fs.lstat(filePath).catch((err: NodeJS.ErrnoException) => {
     if (err.code === "ENOENT") return null;
     throw err;
@@ -58,6 +59,7 @@ async function rejectLeafSymlink(filePath: string): Promise<void> {
   if (stat?.isSymbolicLink()) {
     throw new Error(`refusing to follow symlink: ${filePath}`);
   }
+  return stat;
 }
 
 export async function readIfExists(targetDir: string, filePath: string): Promise<string | null> {
@@ -85,13 +87,13 @@ export async function writeFileMkdir(
   const parent = path.dirname(safe);
   await fs.mkdir(parent, { recursive: true });
   const verified = await safePath(targetDir, filePath);
-  await rejectLeafSymlink(verified);
+  const existing = await rejectLeafSymlink(verified);
 
   const temp = path.join(path.dirname(verified), `.kevin-${randomUUID()}.tmp`);
   const handle = await fs.open(
     temp,
     constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW,
-    0o644,
+    existing ? existing.mode & 0o777 : 0o644,
   );
   try {
     await handle.writeFile(content, "utf8");

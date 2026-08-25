@@ -76,11 +76,6 @@ function buildKnownFiles(scope: InstallScope): Map<string, Set<string>> {
             known.set(file.path, variants);
           }
 
-          export function managedPaths(scope: InstallScope): string[] {
-            const paths = [...buildKnownFiles(scope).keys()];
-            if (scope === "project") paths.push(...LEGACY_PATHS);
-            return paths;
-          }
           variants.add(normalize(file.content));
         }
       }
@@ -131,6 +126,12 @@ const LEGACY_PATH_HASHES: Record<string, Set<string>> = {
     "cc17514fdece2058edc682f05a535132ff813919e16e9ea137a5e6869bb0c308",
   ]),
 };
+
+export function managedPaths(scope: InstallScope): string[] {
+  const paths = [...buildKnownFiles(scope).keys()];
+  if (scope === "project") paths.push(...LEGACY_PATHS);
+  return paths;
+}
 
 /** Directories that kevin creates and should clean up if empty. */
 function cleanupDirs(scope: InstallScope): string[] {
