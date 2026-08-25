@@ -75,6 +75,13 @@ const CORE_RULES = [
   "Do not narrate what you are about to do.",
 ];
 
+const CODE_RULES = [
+  "Take the cheapest option that works: nothing, then what this repo already has, then the standard library, then the runtime or platform, then a dependency already in the manifest, then new code.",
+  "Never add a dependency on your own. Ask.",
+  "Write the smallest version that passes. No speculative abstraction, options, or layers nobody asked for.",
+  "Deleting code is a valid answer.",
+];
+
 const TRIGGERS = [
   '"talk like Kevin" → apply these rules strictly.',
   '"fewer words" → re-emit the previous response compressed.',
@@ -110,13 +117,21 @@ ${bullets(CORE_RULES)}
 ${bullets(mode.rules)}
 - Length target: ${mode.target}.
 
+## Code
+
+Brevity applies to what you build, not just what you say.
+
+${bullets(CODE_RULES)}
+
 ## User-controlled triggers
 
 ${bullets(TRIGGERS)}
 
 ## Non-negotiable
 
-Correctness wins over brevity. Preserve required safety warnings, exact paths, commands, and error messages.${receipt}
+Correctness wins over brevity. Preserve required safety warnings, exact paths, commands, and error messages.
+
+Terse, not negligent. Compression never removes trust-boundary validation, data-loss handling, security controls, or accessibility affordances. If the shortest answer would drop one of these, the answer is not short enough — it is wrong.${receipt}
 `;
 }
 

@@ -22,7 +22,7 @@ Project mode writes:
 .github/
   copilot-instructions.md
   agents/kevin-{lite,full,ultra,adhd,accountant,enlighten}.agent.md
-  skills/kevin-{compress,commit,review,help,enlighten}/SKILL.md
+  skills/kevin-{compress,commit,review,merit,help,enlighten}/SKILL.md
   prompts/kevin-{commit,review,help}.prompt.md
 ```
 
@@ -113,10 +113,34 @@ Agent Skills work in Copilot cloud agent, code review, Copilot CLI, the Copilot 
 - `kevin-compress` — compress an answer without dropping required details
 - `kevin-commit` — generate a Conventional Commits message
 - `kevin-review` — emit concise, evidence-backed review findings
+- `kevin-merit` — the same findings, delivered as a corporate merit cycle
 - `kevin-help` — show modes and controls
 - `kevin-enlighten` — explain a topic as an HTML picture explainer (the one verbose skill)
 
 Prompt files remain available in VS Code as `/kevin-commit`, `/kevin-review`, and `/kevin-help`. Other surfaces use the equivalent skills.
+
+### Merit, the other exception
+
+`kevin-merit` runs the same review as `kevin-review`, audits the diff for over-engineering, and wraps the result in a corporate merit cycle: a band, an allotted increase, and one flat sentence of calibration. Outstanding is defined and never awarded.
+
+The audit works off a cost-approval ladder. Every line added is a line the repo funds forever, so new code has to clear the cheapest tier that could have delivered it:
+
+| Tier | Cheaper option |
+|---:|---|
+| 1 | Nothing — the requirement does not exist |
+| 2 | Prior art already in this repo |
+| 3 | The standard library |
+| 4 | The runtime, browser, or OS |
+| 5 | A dependency already in the manifest |
+| 6 | New code, smallest version that passes |
+
+A new dependency is not a tier; it is a request, and the skill never approves one. Code that stopped at tier 6 when a lower tier would have worked is reported as `UNFUNDED SCOPE` — shipped, unbudgeted, permanent — and the finding must name the specific stdlib call or existing function it should have used. If it cannot name one, there is no finding.
+
+The ladder is wired to the money rather than left as advice: any unfunded scope caps the band at Meets Expectations regardless of line count, and Exceeds requires both a clean scope and deletions outnumbering additions. The only way to be paid above the floor is to remove code and add nothing that already existed.
+
+Two limits on it. The ladder judges the solution, never the effort of understanding the problem — the skill reads the code a change touches before assigning a tier. And the safety floor outranks cheapness: trust-boundary validation, data-loss handling, security controls, and accessibility affordances are funded at every tier and can never be charged as unfunded scope.
+
+The findings stay real. The band cannot be justified by inventing one, and the line counts come from `git diff --numstat` rather than an impression of the diff. The subject is always a change. The skill refuses to score a contributor, an author, or a commit history, because a performance rating pointed at a person is not a joke that a tool gets to make.
 
 ## CLI
 
@@ -146,6 +170,21 @@ Use Kevin Lite output. Preserve explanations needed by documentation readers.
 
 Keep the repository-wide voice in `.github/copilot-instructions.md`; path-specific files should contain only the delta.
 
+## Composing with other tools
+
+Compression that only applies to prose is half a tool. A response can be four words long and still describe a 300-line class nobody needed, so Kevin's brevity now applies to code as well — the `## Code` block in `.github/copilot-instructions.md` and in every agent:
+
+- Take the cheapest option that works: nothing → what this repo already has → the standard library → the runtime or platform → a dependency already in the manifest → new code.
+- Never add a dependency on its own. Ask.
+- Write the smallest version that passes.
+- Deleting code is a valid answer.
+
+That idea is [ponytail](https://github.com/DietrichGebert/ponytail)'s, adopted rather than merely cited. Ponytail is a far more thorough treatment of it — 20-host adapters, a much longer ruleset — and it installs into Copilot CLI alongside Kevin. Run it if you want the full version; Kevin ships four lines because instruction tokens are the thing Kevin is trying to spend less of.
+
+`kevin-merit` enforces the same tiers at review time, so what the voice permits and what the audit charges for stay identical.
+
+Kevin borrows one more rule outright: compression is never allowed to remove trust-boundary validation, data-loss handling, security controls, or accessibility affordances. Terse, not negligent.
+
 ## Surface support
 
 | Asset | VS Code | Copilot CLI | GitHub.com/cloud |
@@ -164,12 +203,12 @@ What is verified by running this repository:
 
 | Claim | How it is checked | Status |
 |---|---|---|
-| Project install writes 15 files under `.github/` | `kevin-copilot init --target <dir>`, `npm test` | Verified |
-| Personal install writes 12 files under `~/.copilot` and omits prompt files | `kevin-copilot init --scope personal --target <dir>`, `npm test` | Verified |
+| Project install writes 16 files under `.github/` | `kevin-copilot init --target <dir>`, `npm test` | Verified |
+| Personal install writes 13 files under `~/.copilot` and omits prompt files | `kevin-copilot init --scope personal --target <dir>`, `npm test` | Verified |
 | Uninstall removes generated files and empty directories, skips modified files | `kevin-copilot uninstall [--scope personal]`, `npm test` | Verified |
 | Agents are manual-only (`disable-model-invocation: true`) and use portable tools | `npm test` | Verified |
 | Token receipts are off unless `--token-receipt` is passed | `npm test` | Verified |
-| Plugin manifest exposes six agents and five skills | `npm test` | Verified |
+| Plugin manifest exposes six agents and six skills | `npm test` | Verified |
 | Response tokens drop 50–90% on fixtures | `npm run evals` | Verified on synthetic fixtures only |
 | Live Copilot models obey the voice rules | Not automated | Unverified |
 | Latency, semantic equivalence, production token savings | Not automated | Unverified |

@@ -29,7 +29,7 @@ test("resolveInside: accepts valid relative path", () => {
   assert.ok(r.endsWith(path.join(".github", "copilot-instructions.md")));
 });
 
-test("install: writes 15 project files into empty dir", async () => {
+test("install: writes 16 project files into empty dir", async () => {
   const dir = await mkTmp();
   try {
     const r = await install({
@@ -40,7 +40,7 @@ test("install: writes 15 project files into empty dir", async () => {
       dryRun: false,
       log: () => {},
     });
-    assert.equal(r.written.length, 15);
+    assert.equal(r.written.length, 16);
     for (const rel of r.written) {
       const stat = await fs.stat(path.join(dir, rel));
       assert.ok(stat.isFile());
@@ -55,7 +55,7 @@ test("install: idempotent second run reports all unchanged", async () => {
   try {
     await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, log: () => {} });
     const r = await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, log: () => {} });
-    assert.equal(r.unchanged.length, 15);
+    assert.equal(r.unchanged.length, 16);
     assert.equal(r.written.length, 0);
     assert.equal(r.skipped.length, 0);
   } finally {
@@ -67,7 +67,7 @@ test("install: dry-run touches nothing", async () => {
   const dir = await mkTmp();
   try {
     const r = await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: true, log: () => {} });
-    assert.equal(r.planned.length, 15);
+    assert.equal(r.planned.length, 16);
     const entries = await fs.readdir(dir);
     assert.equal(entries.length, 0);
   } finally {
@@ -75,7 +75,7 @@ test("install: dry-run touches nothing", async () => {
   }
 });
 
-test("install: personal scope creates Copilot home and writes 12 files", async () => {
+test("install: personal scope creates Copilot home and writes 13 files", async () => {
   const parent = await mkTmp();
   const target = path.join(parent, ".copilot");
   try {
@@ -88,7 +88,7 @@ test("install: personal scope creates Copilot home and writes 12 files", async (
       dryRun: false,
       log: () => {},
     });
-    assert.equal(r.written.length, 12);
+    assert.equal(r.written.length, 13);
     assert.ok(r.written.includes("copilot-instructions.md"));
     assert.ok(r.written.includes("skills/kevin-compress/SKILL.md"));
     assert.equal(r.written.some((file) => file.includes("prompts/")), false);
@@ -198,12 +198,12 @@ test("mergeContent: replaces existing sentinel block", () => {
 
 // ── Uninstall tests ──
 
-test("uninstall: removes all 15 files after clean install", async () => {
+test("uninstall: removes all 16 files after clean install", async () => {
   const dir = await mkTmp();
   try {
     await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, log: () => {} });
     const r = await uninstall({ targetDir: dir, dryRun: false, log: () => {} });
-    assert.equal(r.removed.length, 15);
+    assert.equal(r.removed.length, 16);
     assert.equal(r.skipped.length, 0);
     assert.equal(r.cleaned.length, 0);
     for (const rel of r.removed) {
@@ -220,7 +220,7 @@ test("uninstall: dry-run touches nothing", async () => {
   try {
     await install({ targetDir: dir, intensity: "lite", force: false, merge: false, dryRun: false, log: () => {} });
     const r = await uninstall({ targetDir: dir, dryRun: true, log: () => {} });
-    assert.equal(r.planned.length, 15);
+    assert.equal(r.planned.length, 16);
     assert.equal(r.removed.length, 0);
     // Files still exist.
     const instructions = await fs.stat(path.join(dir, ".github", "copilot-instructions.md"));
@@ -287,7 +287,7 @@ test("uninstall: works for all intensity levels", async () => {
     try {
       await install({ targetDir: dir, intensity, force: false, merge: false, dryRun: false, log: () => {} });
       const r = await uninstall({ targetDir: dir, dryRun: false, log: () => {} });
-      assert.equal(r.removed.length, 15, `intensity=${intensity}: expected 15 removed`);
+      assert.equal(r.removed.length, 16, `intensity=${intensity}: expected 16 removed`);
       assert.equal(r.skipped.length, 0, `intensity=${intensity}: expected 0 skipped`);
     } finally {
       await rmDir(dir);
