@@ -13,7 +13,7 @@ Kevin provides repository instructions, six manually selected agents, five cross
 Commit Kevin to one repository for predictable team-wide behavior:
 
 ```bash
-npx kevin-copilot init
+npx kevin-copilot@0.4.0 init
 ```
 
 Project mode writes:
@@ -33,25 +33,22 @@ Kevin does not write `AGENTS.md` by default. Loading both `AGENTS.md` and `.gith
 Install Kevin under `~/.copilot` so it follows your Copilot CLI sessions without modifying repositories:
 
 ```bash
-npx kevin-copilot init --scope personal
+npx kevin-copilot@0.4.0 init --scope personal
 ```
 
 `COPILOT_HOME` is honored. Personal mode installs instructions, agents, and skills. Use `--target` to override the destination.
 
 ### Plugin mode
 
-Install the native plugin directly from this repository:
+Register the reviewed repository revision, then install its plugin:
 
 ```bash
-copilot plugin install shyamsridhar123/kevin-copilot:plugin
-```
-
-Or register the repository marketplace:
-
-```bash
-copilot plugin marketplace add shyamsridhar123/kevin-copilot
+copilot plugin marketplace add shyamsridhar123/kevin-copilot@0256fccfa68825bb93a1b37467a7377bd34280af
 copilot plugin install kevin-copilot@kevin-copilot
 ```
+
+Review and update the pinned commit deliberately when upgrading. npm releases are
+published with provenance; keep the explicit package version in `npx` commands.
 
 Verify inside a session with `/agent` (agent picker) and `/skills` (skill list), or from the shell:
 
@@ -70,7 +67,8 @@ For Copilot cloud agent and the Copilot app, enable the marketplace plugin in `.
     "kevin-copilot": {
       "source": {
         "source": "github",
-        "repo": "shyamsridhar123/kevin-copilot"
+        "repo": "shyamsridhar123/kevin-copilot",
+        "ref": "0256fccfa68825bb93a1b37467a7377bd34280af"
       }
     }
   },
@@ -93,7 +91,7 @@ For Copilot cloud agent and the Copilot app, enable the marketplace plugin in `.
 Select a project or personal default:
 
 ```bash
-npx kevin-copilot init --intensity accountant
+npx kevin-copilot@0.4.0 init --intensity accountant
 ```
 
 Voice agents use portable `read`, `edit`, `search`, and `execute` tool aliases. They set `disable-model-invocation: true`, so Copilot will not infer a voice agent from task context; select one explicitly. Lite, Full, and Ultra include VS Code handoffs for changing compression.
@@ -237,8 +235,8 @@ Requires Node.js 18 or later.
 ## Uninstall
 
 ```bash
-npx kevin-copilot uninstall
-npx kevin-copilot uninstall --scope personal
+npx kevin-copilot@0.4.0 uninstall
+npx kevin-copilot@0.4.0 uninstall --scope personal
 ```
 
 Exact generated files are removed. Merged instruction blocks are cleaned while surrounding content is preserved. Modified files are skipped.

@@ -9,6 +9,9 @@
 - *Composing with other tools* section in the README, documenting the code rules and pointing at [ponytail](https://github.com/DietrichGebert/ponytail) as the fuller treatment of the same idea.
 
 ### Changed
+- Filesystem operations now reject symlinked targets and managed paths, writes are atomic, failed updates roll back, and legacy files are removed only when their content matches a known Kevin release.
+- Observer telemetry records metadata only, uses private permissions, and refuses symlinked storage paths.
+- Installation examples pin package and marketplace revisions; npm publishing requests provenance.
 - **Kevin's brevity now applies to code, not just prose.** A new `## Code` block in the always-on voice — so it reaches `copilot-instructions.md`, every agent, and every chat mode — requires the cheapest option that works: nothing, then what the repo already has, then the standard library, then the runtime or platform, then a dependency already in the manifest, then new code. Dependencies are never added unilaterally, and deleting code is a valid answer. Adopted from ponytail; `kevin-merit` audits against the same tiers, so write time and review time agree.
 - The non-negotiable voice block now names what compression may never drop — trust-boundary validation, data-loss handling, security controls, accessibility affordances — instead of leaving "required safety warnings" to the model's judgement. Adopted from ponytail.
 - `init` now writes 16 project files (was 15) and 13 personal files (was 12).

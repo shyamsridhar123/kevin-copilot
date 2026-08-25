@@ -2,6 +2,7 @@
 import { parse, HELP_TEXT } from "./args";
 import { install } from "./install";
 import { uninstall } from "./uninstall";
+import { update } from "./update";
 
 // Keep in sync with package.json.
 const VERSION = "0.4.0";
@@ -36,17 +37,22 @@ async function main(argv: string[]): Promise<number> {
     }
 
     if (parsed.command === "update") {
-      await uninstall({
+      await update({
         targetDir: parsed.targetDir,
         dryRun: parsed.dryRun,
         scope: parsed.scope,
+        intensity: parsed.intensity,
+        merge: parsed.merge,
+        tokenReceipt: parsed.tokenReceipt,
+        includeAgentsMd: parsed.includeAgentsMd,
       });
+      return 0;
     }
 
     await install({
       targetDir: parsed.targetDir,
       intensity: parsed.intensity,
-      force: parsed.command === "update" && !parsed.merge,
+      force: parsed.force,
       merge: parsed.merge,
       dryRun: parsed.dryRun,
       scope: parsed.scope,

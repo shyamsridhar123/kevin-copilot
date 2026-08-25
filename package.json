@@ -40,6 +40,10 @@
     "cli"
   ],
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "devDependencies": {
     "typescript": "^5.4.5",
     "tsx": "^4.7.2",

@@ -32,6 +32,7 @@ export interface InstallResult {
   skipped: string[];
   unchanged: string[];
   planned: string[];
+  aborted: boolean;
 }
 
 export async function install(params: InstallParams): Promise<InstallResult> {
@@ -60,18 +61,19 @@ export async function install(params: InstallParams): Promise<InstallResult> {
     skipped: [],
     unchanged: [],
     planned: [],
+    aborted: false,
   };
 
   for (const file of files) {
     const abs = resolveInside(targetDir, file.path);
-    const existing = await readIfExists(abs);
+    const existing = await readIfExists(targetDir, abs);
 
     if (existing === null) {
       if (dryRun) {
         log(`plan write: ${file.path}`);
         result.planned.push(file.path);
       } else {
-        await writeFileMkdir(abs, file.content);
+        await writeFileMkdir(targetDir, abs, file.content);
         log(`wrote: ${file.path}`);
         result.written.push(file.path);
       }
@@ -91,7 +93,7 @@ export async function install(params: InstallParams): Promise<InstallResult> {
         log(`plan merge: ${file.path}`);
         result.planned.push(file.path);
       } else {
-        await writeFileMkdir(abs, next);
+        await writeFileMkdir(targetDir, abs, next);
         log(`merged: ${file.path}`);
         result.merged.push(file.path);
       }
@@ -103,7 +105,7 @@ export async function install(params: InstallParams): Promise<InstallResult> {
         log(`plan overwrite: ${file.path}`);
         result.planned.push(file.path);
       } else {
-        await writeFileMkdir(abs, file.content);
+        await writeFileMkdir(targetDir, abs, file.content);
         log(`overwrote: ${file.path}`);
         result.written.push(file.path);
       }
@@ -113,6 +115,7 @@ export async function install(params: InstallParams): Promise<InstallResult> {
     const choice = await resolveConflict(file.path);
     if (choice === "quit") {
       log("aborted by user");
+      result.aborted = true;
       return result;
     }
     if (choice === "skip") {
@@ -125,7 +128,7 @@ export async function install(params: InstallParams): Promise<InstallResult> {
       log(`plan overwrite: ${file.path}`);
       result.planned.push(file.path);
     } else {
-      await writeFileMkdir(abs, file.content);
+      await writeFileMkdir(targetDir, abs, file.content);
       log(`overwrote: ${file.path}`);
       result.written.push(file.path);
     }

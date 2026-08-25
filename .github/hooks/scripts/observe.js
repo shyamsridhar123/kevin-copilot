@@ -11,19 +11,16 @@ const path = require("path");
 const hookType = process.argv[2] || "unknown";
 const ATV_DIR = path.join(process.cwd(), ".atv");
 const OBS_FILE = path.join(ATV_DIR, "observations.jsonl");
-const MAX_ARG_LENGTH = 2000;
-
 function ensureDir(dir) {
   try {
-    fs.mkdirSync(dir, { recursive: true });
+    const existing = fs.lstatSync(dir, { throwIfNoEntry: false });
+    if (existing?.isSymbolicLink()) return false;
+    fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+    fs.chmodSync(dir, 0o700);
+    return true;
   } catch (_) {
-    // ignore — may already exist
+    return false;
   }
-}
-
-function truncate(str, max) {
-  if (typeof str !== "string") return str;
-  return str.length > max ? str.slice(0, max) + "...[truncated]" : str;
 }
 
 function readStdin() {
@@ -40,44 +37,31 @@ function main() {
   try {
     if (raw) input = JSON.parse(raw);
   } catch (_) {
-    // stdin may not be JSON for all hook types
-    input = { raw: truncate(raw, MAX_ARG_LENGTH) };
+    input = {};
   }
 
   const entry = {
     ts: new Date().toISOString(),
     hook: hookType,
     tool: input.toolName || null,
-    args: truncate(
-      typeof input.toolArgs === "string"
-        ? input.toolArgs
-        : JSON.stringify(input.toolArgs || null),
-      MAX_ARG_LENGTH
-    ),
-    cwd: input.cwd || process.cwd(),
+    success: typeof input.success === "boolean" ? input.success : null,
   };
-
-  // Add outcome for postToolUse
-  if (hookType === "postToolUse" && input.toolResult !== undefined) {
-    entry.result = truncate(String(input.toolResult), 500);
-  }
-
-  // Add error details for errorOccurred
-  if (hookType === "errorOccurred") {
-    entry.error = truncate(input.error || input.message || raw, 500);
-  }
 
   // Session markers
   if (hookType === "sessionStart" || hookType === "sessionEnd") {
     entry.sessionEvent = true;
   }
 
-  ensureDir(ATV_DIR);
-
-  try {
-    fs.appendFileSync(OBS_FILE, JSON.stringify(entry) + "\n");
-  } catch (_) {
-    // silent failure — observer must never break the agent
+  if (ensureDir(ATV_DIR)) {
+    try {
+      const existing = fs.lstatSync(OBS_FILE, { throwIfNoEntry: false });
+      if (!existing?.isSymbolicLink()) {
+        fs.appendFileSync(OBS_FILE, JSON.stringify(entry) + "\n", { mode: 0o600 });
+        fs.chmodSync(OBS_FILE, 0o600);
+      }
+    } catch (_) {
+      // silent failure — observer must never break the agent
+    }
   }
 
   // On sessionEnd, update instinct confidence from accumulated observations

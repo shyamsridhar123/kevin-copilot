@@ -75,6 +75,12 @@ function buildKnownFiles(scope: InstallScope): Map<string, Set<string>> {
             variants = new Set();
             known.set(file.path, variants);
           }
+
+          export function managedPaths(scope: InstallScope): string[] {
+            const paths = [...buildKnownFiles(scope).keys()];
+            if (scope === "project") paths.push(...LEGACY_PATHS);
+            return paths;
+          }
           variants.add(normalize(file.content));
         }
       }
@@ -111,6 +117,21 @@ const LEGACY_PATHS = [
   ".github/chatmodes/kevin-ultra.chatmode.md",
 ];
 
+const LEGACY_PATH_HASHES: Record<string, Set<string>> = {
+  ".github/chatmodes/kevin-lite.chatmode.md": new Set([
+    "8785cf6a93948f37ac521745692bfeeeec2fe2aca3cbcdb0ed355bf0c0c158ee",
+    "2db7468af48657eda82efe7d758dc47ee3cbb4294b8351b1d630a6f14ee96be4",
+  ]),
+  ".github/chatmodes/kevin-full.chatmode.md": new Set([
+    "b51684bfee6a6e9719ce0e2f3b75b539741caede3b8f51b5130d2242b6eaf31c",
+    "3c6cfdbe47c54a3ac3bdd65a1fdbd798698971c1fba36583e9e8641f63ac2ab4",
+  ]),
+  ".github/chatmodes/kevin-ultra.chatmode.md": new Set([
+    "360e6b5b14e9dd0fd3f90f71bb81edd8758f8592ac653784a6753ab77af00eb0",
+    "cc17514fdece2058edc682f05a535132ff813919e16e9ea137a5e6869bb0c308",
+  ]),
+};
+
 /** Directories that kevin creates and should clean up if empty. */
 function cleanupDirs(scope: InstallScope): string[] {
   const prefix = scope === "project" ? ".github/" : "";
@@ -146,7 +167,7 @@ export async function uninstall(params: UninstallParams): Promise<UninstallResul
 
   for (const [relPath, variants] of known) {
     const abs = resolveInside(targetDir, relPath);
-    const existing = await readIfExists(abs);
+    const existing = await readIfExists(targetDir, abs);
 
     if (existing === null) continue;
 
@@ -158,7 +179,7 @@ export async function uninstall(params: UninstallParams): Promise<UninstallResul
         log(`plan remove: ${relPath}`);
         result.planned.push(relPath);
       } else {
-        await removeFile(abs);
+        await removeFile(targetDir, abs);
         log(`removed: ${relPath}`);
         result.removed.push(relPath);
       }
@@ -175,7 +196,7 @@ export async function uninstall(params: UninstallParams): Promise<UninstallResul
             log(`plan remove: ${relPath} (empty after cleaning)`);
             result.planned.push(relPath);
           } else {
-            await removeFile(abs);
+            await removeFile(targetDir, abs);
             log(`removed: ${relPath} (empty after cleaning)`);
             result.removed.push(relPath);
           }
@@ -184,7 +205,7 @@ export async function uninstall(params: UninstallParams): Promise<UninstallResul
             log(`plan clean: ${relPath} (remove kevin section)`);
             result.planned.push(relPath);
           } else {
-            await writeFileMkdir(abs, cleaned);
+            await writeFileMkdir(targetDir, abs, cleaned);
             log(`cleaned: ${relPath} (removed kevin section)`);
             result.cleaned.push(relPath);
           }
@@ -201,12 +222,18 @@ export async function uninstall(params: UninstallParams): Promise<UninstallResul
   // Remove legacy files from older versions (e.g. .chatmode.md → .agent.md migration).
   for (const relPath of scope === "project" ? LEGACY_PATHS : []) {
     const abs = resolveInside(targetDir, relPath);
-    if (await readIfExists(abs) === null) continue;
+    const existing = await readIfExists(targetDir, abs);
+    if (existing === null) continue;
+    if (!LEGACY_PATH_HASHES[relPath].has(hash(existing))) {
+      log(`skipped: ${relPath} (modified or not installed by kevin)`);
+      result.skipped.push(relPath);
+      continue;
+    }
     if (dryRun) {
       log(`plan remove (legacy): ${relPath}`);
       result.planned.push(relPath);
     } else {
-      await removeFile(abs);
+      await removeFile(targetDir, abs);
       log(`removed (legacy): ${relPath}`);
       result.removed.push(relPath);
     }
@@ -216,7 +243,7 @@ export async function uninstall(params: UninstallParams): Promise<UninstallResul
   if (!dryRun) {
     for (const dir of cleanupDirs(scope)) {
       const abs = resolveInside(targetDir, dir);
-      if (await removeDirIfEmpty(abs)) {
+      if (await removeDirIfEmpty(targetDir, abs)) {
         log(`removed empty directory: ${dir}`);
       }
     }

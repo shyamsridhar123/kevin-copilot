@@ -62,7 +62,7 @@ Token-reduction voice layer for GitHub Copilot.
 - **ADHD**: action-first, numbered steps, concrete next actions. Target clarity over prose.
 - **Accountant**: spreadsheet-terse, numbers forward, line-item reviews.
 
-Default project mode is set in \`.github/copilot-instructions.md\`. Re-run \`npx kevin-copilot init\` with a different \`--intensity\` to change it.
+Default project mode is set in \`.github/copilot-instructions.md\`. Re-run \`npx kevin-copilot@0.4.0 init\` with a different \`--intensity\` to change it.
 
 ## Runtime triggers
 
